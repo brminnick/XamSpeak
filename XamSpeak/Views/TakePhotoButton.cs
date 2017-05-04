@@ -6,9 +6,9 @@ namespace XamSpeak
 	{
 		public TakePhotoButton()
 		{
-			BorderColor = Color.FromHex("268E80");
-			BackgroundColor = Color.FromHex("268E80");
-			TextColor = Color.White;
+			BorderColor = Color.FromHex("44B8A9");
+			BackgroundColor = Color.FromHex("44B8A9");
+			TextColor = Color.FromHex("202020");
 			FontAttributes = FontAttributes.Bold;
 		}
 	}

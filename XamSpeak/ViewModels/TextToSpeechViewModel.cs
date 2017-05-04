@@ -23,6 +23,7 @@ namespace XamSpeak
 		#endregion
 
 		#region Events
+		public event EventHandler NoTextDetected;
 		public event EventHandler NoCameraDetected;
 		#endregion
 
@@ -52,6 +53,8 @@ namespace XamSpeak
 		#region Methods
 		async Task ExecuteTakePictureButtonCommand()
 		{
+			SpokenTextLabelText = string.Empty;
+
 			await ExecuteNewPictureWorkflow();
 		}
 
@@ -69,6 +72,9 @@ namespace XamSpeak
 			var listOfStringsFromOcrResults = GetTextFromOcrResults(ocrResults);
 
 			var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults);
+
+			if (spellCheckedlistOfStringsFromOcrResults == null)
+				return;
 
 			SpeakText(spellCheckedlistOfStringsFromOcrResults);
 		}
@@ -187,7 +193,10 @@ namespace XamSpeak
 			{
 				correctedLineItemList.Add(lineItem);
 
-				var misspelledWordList = await HttpHelpers.SpellCheckStringList(lineItem);
+				var misspelledWordList = await HttpHelpers.SpellCheckString(lineItem);
+
+				if (misspelledWordList == null)
+					return null;
 
 				foreach (var misspelledWord in misspelledWordList)
 				{

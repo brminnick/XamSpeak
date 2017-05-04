@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using System;
+using Xamarin.Forms;
 
 namespace XamSpeak
 {
@@ -34,6 +35,39 @@ namespace XamSpeak
 					takePictureButton,
 				}
 			};
+
+			Title = "XamSpeak";
 		}
+
+		#region Methods
+		protected override void OnAppearing()
+		{
+			base.OnAppearing();
+
+			ViewModel.NoCameraDetected += HandleNoCameraDetected;
+			HttpHelpers.Error429_TooManySpellCheckAPIRequests += HandleError429_TooManySpellCheckAPIRequests;
+		}
+
+		protected override void OnDisappearing()
+		{
+			base.OnDisappearing();
+
+			ViewModel.NoCameraDetected -= HandleNoCameraDetected;
+			HttpHelpers.Error429_TooManySpellCheckAPIRequests -= HandleError429_TooManySpellCheckAPIRequests;
+
+		}
+
+		void HandleNoCameraDetected(object sender, EventArgs e)
+		{
+			Device.BeginInvokeOnMainThread(async () =>
+										   await DisplayAlert("Error", "No Camera Available", "Ok"));
+		}
+
+		void HandleError429_TooManySpellCheckAPIRequests(object sender, EventArgs e)
+		{
+			Device.BeginInvokeOnMainThread(async () =>
+											await DisplayAlert("Error", "Bing Spell Check API Limit Reached", "Ok"));
+		}
+		#endregion
 	}
 }

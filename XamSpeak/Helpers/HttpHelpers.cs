@@ -17,8 +17,12 @@ namespace XamSpeak
 		static readonly JsonSerializer _serializer = new JsonSerializer();
 		#endregion
 
+		#region Events
+		public static event EventHandler Error429_TooManySpellCheckAPIRequests;
+		#endregion
+
 		#region Methods
-		public static async Task<List<MisspelledWordModel>> SpellCheckStringList(string text)
+		public static async Task<List<MisspelledWordModel>> SpellCheckString(string text)
 		{
 			_client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", CognitiveServicesConstants.BingSpellCheckAPIKey);
 
@@ -43,6 +47,15 @@ namespace XamSpeak
 					return _serializer.Deserialize<T>(json);
 				}
 			}
+			catch(HttpRequestException e)
+			{
+				DebugHelpers.PrintException(e);
+
+				if (e.Message.Contains("429"))
+					OnError429_TooManySpellCheckAPIRequests();
+
+				return default(T);
+			}
 			catch (Exception e)
 			{
 				DebugHelpers.PrintException(e);
@@ -63,6 +76,9 @@ namespace XamSpeak
 
 			return client;
 		}
+
+		static void OnError429_TooManySpellCheckAPIRequests() =>
+			Error429_TooManySpellCheckAPIRequests?.Invoke(null, EventArgs.Empty);
 		#endregion
 	}
 }

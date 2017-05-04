@@ -4,7 +4,7 @@ XamSpeak allows you to take a photo of text and it will dictate it aloud!
 ## About
 XamSpeak is an iOS and Android app that will dictate text from a photo. 
 
-XamSpeak leverages Microsoft Cognitive Services to perform Optical Character Recognition (OCR) and Spell Check.
+We are leveraging [Microsoft Cognitive Services](https://www.microsoft.com/cognitive-services/) to perform Optical Character Recognition (OCR) and Spell Check.
 
 
 ## ToDo

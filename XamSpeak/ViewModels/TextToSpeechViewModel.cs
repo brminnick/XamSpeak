@@ -8,8 +8,9 @@ using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
 
 using Plugin.Media;
-using Plugin.Media.Abstractions;
 using Plugin.TextToSpeech;
+using Plugin.Media.Abstractions;
+
 using Xamarin.Forms;
 
 namespace XamSpeak
@@ -18,18 +19,33 @@ namespace XamSpeak
 	{
 		#region Fields
 		string _spokenTextLabelText, _activityIndicatorLabelText;
-		bool _isActivityIndicatorDisplayed;
+		bool _isActivityIndicatorDisplayed, _isInternetConnectionInUse;
 		Command _takePictureButtonCommand;
 		#endregion
 
 		#region Events
 		public event EventHandler NoTextDetected;
 		public event EventHandler NoCameraDetected;
+		public event EventHandler InternetConnectionFailed;
+		#endregion
+
+		#region Finalizers
+		~TextToSpeechViewModel()
+		{
+			HttpHelpers.HttpClientConnectionEnded -= HandleHttpClientConnectionEnded;
+			HttpHelpers.HttpClientConnectionStarted -= HandleHttpClientConnectionStarted;
+		}
 		#endregion
 
 		#region Properties
 		public Command TakePictureButtonCommand => _takePictureButtonCommand ??
 			(_takePictureButtonCommand = new Command(async () => await ExecuteTakePictureButtonCommand()));
+
+		public bool IsInternetConnectionInUse
+		{
+			get { return _isInternetConnectionInUse; }
+			set { SetProperty(ref _isInternetConnectionInUse, value); }
+		}
 
 		public string SpokenTextLabelText
 		{
@@ -53,6 +69,9 @@ namespace XamSpeak
 		#region Methods
 		async Task ExecuteTakePictureButtonCommand()
 		{
+			HttpHelpers.HttpClientConnectionStarted += HandleHttpClientConnectionStarted;
+			HttpHelpers.HttpClientConnectionEnded += HandleHttpClientConnectionEnded;
+
 			SpokenTextLabelText = string.Empty;
 
 			await ExecuteNewPictureWorkflow();
@@ -62,19 +81,26 @@ namespace XamSpeak
 		{
 			var mediaFile = await GetMediaFileFromCamera(Guid.NewGuid().ToString());
 			if (mediaFile == null)
+			{
+				OnDisplayNoCameraDetected();
 				return;
+			}
 
 			var ocrResults = await GetOcrResultsFromMediaFile(mediaFile);
-
 			if (ocrResults == null)
+			{
+				OnInternetConnectionFailed();
 				return;
+			}
 
 			var listOfStringsFromOcrResults = GetTextFromOcrResults(ocrResults);
 
 			var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults);
-
 			if (spellCheckedlistOfStringsFromOcrResults == null)
+			{
+				OnInternetConnectionFailed();
 				return;
+			}
 
 			SpeakText(spellCheckedlistOfStringsFromOcrResults);
 		}
@@ -84,10 +110,7 @@ namespace XamSpeak
 			await CrossMedia.Current.Initialize();
 
 			if (!CrossMedia.Current.IsCameraAvailable || !CrossMedia.Current.IsTakePhotoSupported)
-			{
-				OnDisplayNoCameraDetected();
 				return null;
-			}
 
 			var file = await CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
 			{
@@ -236,6 +259,20 @@ namespace XamSpeak
 
 		}
 
+		void HandleHttpClientConnectionStarted(object sender, EventArgs e)
+		{
+			IsInternetConnectionInUse = true;
+
+			HttpHelpers.HttpClientConnectionStarted -= HandleHttpClientConnectionStarted;
+		}
+
+		void HandleHttpClientConnectionEnded(object sender, EventArgs e)
+		{
+			IsInternetConnectionInUse = false;
+
+			HttpHelpers.HttpClientConnectionEnded -= HandleHttpClientConnectionEnded;
+		}
+
 		void ActivateActivityIndicator(string activityIndicatorLabelText)
 		{
 			IsActivityIndicatorDisplayed = true;
@@ -250,6 +287,9 @@ namespace XamSpeak
 
 		void OnDisplayNoCameraDetected() =>
 			NoCameraDetected?.Invoke(this, EventArgs.Empty);
+
+		void OnInternetConnectionFailed() =>
+			InternetConnectionFailed?.Invoke(this, EventArgs.Empty);
 		#endregion
 
 		#region Classes

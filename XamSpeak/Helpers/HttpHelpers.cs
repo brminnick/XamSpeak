@@ -18,6 +18,8 @@ namespace XamSpeak
 		#endregion
 
 		#region Events
+		public static event EventHandler HttpClientConnectionEnded;
+		public static event EventHandler HttpClientConnectionStarted;
 		public static event EventHandler Error429_TooManySpellCheckAPIRequests;
 		#endregion
 
@@ -35,6 +37,8 @@ namespace XamSpeak
 
 		static async Task<T> GetDataObjectFromAPI<T>(string apiUrl)
 		{
+			OnHttpClientConnectionStarted();
+
 			try
 			{
 				using (var stream = await _client.GetStreamAsync(apiUrl))
@@ -47,7 +51,7 @@ namespace XamSpeak
 					return _serializer.Deserialize<T>(json);
 				}
 			}
-			catch(HttpRequestException e)
+			catch (HttpRequestException e)
 			{
 				DebugHelpers.PrintException(e);
 
@@ -60,6 +64,10 @@ namespace XamSpeak
 			{
 				DebugHelpers.PrintException(e);
 				return default(T);
+			}
+			finally
+			{
+				OnHttpClientConnectionEnded();
 			}
 		}
 
@@ -79,6 +87,12 @@ namespace XamSpeak
 
 		static void OnError429_TooManySpellCheckAPIRequests() =>
 			Error429_TooManySpellCheckAPIRequests?.Invoke(null, EventArgs.Empty);
+
+		static void OnHttpClientConnectionStarted() =>
+			HttpClientConnectionStarted?.Invoke(null, EventArgs.Empty);
+
+		static void OnHttpClientConnectionEnded() =>
+			HttpClientConnectionEnded?.Invoke(null, EventArgs.Empty);
 		#endregion
 	}
 }

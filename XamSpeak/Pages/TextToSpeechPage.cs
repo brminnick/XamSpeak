@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Xamarin.Forms;
 
 namespace XamSpeak
@@ -7,12 +8,13 @@ namespace XamSpeak
 	{
 		public TextToSpeechPage()
 		{
+			this.SetBinding(IsBusyProperty, nameof(ViewModel.IsInternetConnectionInUse));
+
 			var takePictureButton = new TakePhotoButton { Text = "   Take A Picture Of Text   " };
 			var inverseBoolConverter = new InverseBoolConverter();
 			var inverseBoolBinding = new Binding(nameof(ViewModel.IsActivityIndicatorDisplayed), BindingMode.Default, inverseBoolConverter, ViewModel.IsActivityIndicatorDisplayed);
 			takePictureButton.SetBinding(IsVisibleProperty, inverseBoolBinding);
 			takePictureButton.SetBinding(Button.CommandProperty, nameof(ViewModel.TakePictureButtonCommand));
-
 
 			var spokenTextLabel = new Label { HorizontalTextAlignment = TextAlignment.Center };
 			spokenTextLabel.SetBinding(Label.TextProperty, nameof(ViewModel.SpokenTextLabelText));
@@ -44,7 +46,9 @@ namespace XamSpeak
 		{
 			base.OnAppearing();
 
+			ViewModel.NoTextDetected += HandleNoTextDetected;
 			ViewModel.NoCameraDetected += HandleNoCameraDetected;
+			ViewModel.InternetConnectionFailed += HandleInternetConnectionFailed;
 			HttpHelpers.Error429_TooManySpellCheckAPIRequests += HandleError429_TooManySpellCheckAPIRequests;
 		}
 
@@ -52,9 +56,10 @@ namespace XamSpeak
 		{
 			base.OnDisappearing();
 
+			ViewModel.NoTextDetected -= HandleNoTextDetected;
 			ViewModel.NoCameraDetected -= HandleNoCameraDetected;
+			ViewModel.InternetConnectionFailed -= HandleInternetConnectionFailed;
 			HttpHelpers.Error429_TooManySpellCheckAPIRequests -= HandleError429_TooManySpellCheckAPIRequests;
-
 		}
 
 		void HandleNoCameraDetected(object sender, EventArgs e)
@@ -67,6 +72,18 @@ namespace XamSpeak
 		{
 			Device.BeginInvokeOnMainThread(async () =>
 											await DisplayAlert("Error", "Bing Spell Check API Limit Reached", "Ok"));
+		}
+
+		void HandleInternetConnectionFailed(object sender, EventArgs e)
+		{
+			Device.BeginInvokeOnMainThread(async() =>
+											await DisplayAlert("Error", "Internet Connection Not Available", "Ok"));
+		}
+
+		void HandleNoTextDetected(object sender, EventArgs e)
+		{
+			Device.BeginInvokeOnMainThread(async() =>
+											await DisplayAlert("No Text Detected", string.Empty, "Ok"));
 		}
 		#endregion
 	}

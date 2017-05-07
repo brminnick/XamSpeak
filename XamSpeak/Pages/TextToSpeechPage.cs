@@ -4,87 +4,112 @@ using Xamarin.Forms;
 
 namespace XamSpeak
 {
-	public class TextToSpeechPage : BaseContentPage<TextToSpeechViewModel>
-	{
-		public TextToSpeechPage()
-		{
-			this.SetBinding(IsBusyProperty, nameof(ViewModel.IsInternetConnectionInUse));
+    public class TextToSpeechPage : BaseContentPage<TextToSpeechViewModel>
+    {
+        public TextToSpeechPage()
+        {
+            this.SetBinding(IsBusyProperty, nameof(ViewModel.IsInternetConnectionInUse));
 
-			var takePictureButton = new TakePhotoButton { Text = "   Take A Picture Of Text   " };
-			var inverseBoolConverter = new InverseBoolConverter();
-			var inverseBoolBinding = new Binding(nameof(ViewModel.IsActivityIndicatorDisplayed), BindingMode.Default, inverseBoolConverter, ViewModel.IsActivityIndicatorDisplayed);
-			takePictureButton.SetBinding(IsVisibleProperty, inverseBoolBinding);
-			takePictureButton.SetBinding(Button.CommandProperty, nameof(ViewModel.TakePictureButtonCommand));
+            var takePictureButton = new TakePhotoButton { Text = "   Take A Picture Of Text   " };
+            var inverseBoolConverter = new InverseBoolConverter();
+            var inverseBoolBinding = new Binding(nameof(ViewModel.IsActivityIndicatorDisplayed), BindingMode.Default, inverseBoolConverter, ViewModel.IsActivityIndicatorDisplayed);
+            takePictureButton.SetBinding(IsVisibleProperty, inverseBoolBinding);
+            takePictureButton.SetBinding(Button.CommandProperty, nameof(ViewModel.TakePictureButtonCommand));
 
-			var spokenTextLabel = new Label { HorizontalTextAlignment = TextAlignment.Center };
-			spokenTextLabel.SetBinding(Label.TextProperty, nameof(ViewModel.SpokenTextLabelText));
+            var spokenTextLabel = new Label { HorizontalTextAlignment = TextAlignment.Center };
+            spokenTextLabel.SetBinding(Label.TextProperty, nameof(ViewModel.SpokenTextLabelText));
 
-			var activityIndicatorLabel = new Label { FontAttributes = FontAttributes.Italic };
-			activityIndicatorLabel.SetBinding(Label.TextProperty, nameof(ViewModel.ActivityIndicatorLabelText));
+            var activityIndicatorLabel = new Label { FontAttributes = FontAttributes.Italic };
+            activityIndicatorLabel.SetBinding(Label.TextProperty, nameof(ViewModel.ActivityIndicatorLabelText));
 
-			var activityIndicator = new ActivityIndicator();
-			activityIndicator.SetBinding(IsVisibleProperty, nameof(ViewModel.IsActivityIndicatorDisplayed));
-			activityIndicator.SetBinding(ActivityIndicator.IsRunningProperty, nameof(ViewModel.IsActivityIndicatorDisplayed));
+            var activityIndicator = new ActivityIndicator();
+            activityIndicator.SetBinding(IsVisibleProperty, nameof(ViewModel.IsActivityIndicatorDisplayed));
+            activityIndicator.SetBinding(ActivityIndicator.IsRunningProperty, nameof(ViewModel.IsActivityIndicatorDisplayed));
 
-			Content = new StackLayout
-			{
-				VerticalOptions = LayoutOptions.Center,
-				HorizontalOptions = LayoutOptions.Center,
-				Children = {
-					spokenTextLabel,
-					activityIndicatorLabel,
-					activityIndicator,
-					takePictureButton,
-				}
-			};
+            Content = new StackLayout
+            {
+                Margin = new Thickness(20, 0),
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Center,
+                Children = {
+                    spokenTextLabel,
+                    activityIndicatorLabel,
+                    activityIndicator,
+                    takePictureButton,
+                }
+            };
 
-			Title = "XamSpeak";
-		}
+            Title = "XamSpeak";
+        }
 
-		#region Methods
-		protected override void OnAppearing()
-		{
-			base.OnAppearing();
+        #region Methods
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
 
-			ViewModel.NoTextDetected += HandleNoTextDetected;
-			ViewModel.NoCameraDetected += HandleNoCameraDetected;
-			ViewModel.InternetConnectionFailed += HandleInternetConnectionFailed;
-			HttpHelpers.Error429_TooManySpellCheckAPIRequests += HandleError429_TooManySpellCheckAPIRequests;
-		}
+            ViewModel.OCRFailed += HandleOCRFailed;
+            ViewModel.SpellCheckFailed += HandleSpellCheckFailed;
+            ViewModel.NoCameraDetected += HandleNoCameraDetected;
+            ViewModel.InvalidComputerVisionAPIKey += HandleInvalidComputerVisionAPIKey;
+			HttpHelpers.InvalidBingSpellCheckAPIKey += HandleInvalidBingSpellCheckAPIKey;
+			ViewModel.InternetConnectionUnavailable += HandleInternetConnectionUnavailable;
+            HttpHelpers.Error429_TooManySpellCheckAPIRequests += HandleError429_TooManySpellCheckAPIRequests;
+        }
 
-		protected override void OnDisappearing()
-		{
-			base.OnDisappearing();
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
 
-			ViewModel.NoTextDetected -= HandleNoTextDetected;
+            ViewModel.OCRFailed -= HandleOCRFailed;
+            ViewModel.SpellCheckFailed -= HandleSpellCheckFailed;
 			ViewModel.NoCameraDetected -= HandleNoCameraDetected;
-			ViewModel.InternetConnectionFailed -= HandleInternetConnectionFailed;
-			HttpHelpers.Error429_TooManySpellCheckAPIRequests -= HandleError429_TooManySpellCheckAPIRequests;
-		}
+            ViewModel.InvalidComputerVisionAPIKey -= HandleInvalidComputerVisionAPIKey;
+			HttpHelpers.InvalidBingSpellCheckAPIKey -= HandleInvalidBingSpellCheckAPIKey;
+            ViewModel.InternetConnectionUnavailable -= HandleInternetConnectionUnavailable;
+            HttpHelpers.Error429_TooManySpellCheckAPIRequests -= HandleError429_TooManySpellCheckAPIRequests;
+        }
 
-		void HandleNoCameraDetected(object sender, EventArgs e)
+		void HandleInternetConnectionUnavailable(object sender, EventArgs e)
 		{
 			Device.BeginInvokeOnMainThread(async () =>
-										   await DisplayAlert("Error", "No Camera Available", "Ok"));
+											   await DisplayAlert("Error", "Internet Connection Unavailable", "Ok"));
 		}
 
-		void HandleError429_TooManySpellCheckAPIRequests(object sender, EventArgs e)
-		{
+        void HandleInvalidComputerVisionAPIKey(object sender, EventArgs e)
+        {
 			Device.BeginInvokeOnMainThread(async () =>
-											await DisplayAlert("Error", "Bing Spell Check API Limit Reached", "Ok"));
+											await DisplayAlert("Error", "Invalid Computer Vision API Key", "Ok"));
 		}
 
-		void HandleInternetConnectionFailed(object sender, EventArgs e)
-		{
-			Device.BeginInvokeOnMainThread(async() =>
-											await DisplayAlert("Error", "Internet Connection Not Available", "Ok"));
-		}
+        void HandleInvalidBingSpellCheckAPIKey(object sender, EventArgs e)
+        {
+			Device.BeginInvokeOnMainThread(async () =>
+											await DisplayAlert("Error", "Invalid Bing Spell Check API Key", "Ok"));
+        }
 
-		void HandleNoTextDetected(object sender, EventArgs e)
-		{
-			Device.BeginInvokeOnMainThread(async() =>
-											await DisplayAlert("No Text Detected", string.Empty, "Ok"));
-		}
-		#endregion
-	}
+        void HandleSpellCheckFailed(object sender, EventArgs e)
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+                                            await DisplayAlert("Error", "Spell Check Failed", "Ok"));
+        }
+
+        void HandleNoCameraDetected(object sender, EventArgs e)
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+                                           await DisplayAlert("Error", "No Camera Available", "Ok"));
+        }
+
+        void HandleError429_TooManySpellCheckAPIRequests(object sender, EventArgs e)
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+                                            await DisplayAlert("Error", "Bing Spell Check API Limit Reached", "Ok"));
+        }
+
+        void HandleOCRFailed(object sender, EventArgs e)
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+                                            await DisplayAlert("Error", "Optical Character Recognition Failed", "Ok"));
+        }
+        #endregion
+    }
 }

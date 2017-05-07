@@ -18,8 +18,7 @@ namespace XamSpeak
 		#endregion
 
 		#region Events
-		public static event EventHandler HttpClientConnectionEnded;
-		public static event EventHandler HttpClientConnectionStarted;
+        public static event EventHandler InvalidBingSpellCheckAPIKey;
 		public static event EventHandler Error429_TooManySpellCheckAPIRequests;
 		#endregion
 
@@ -37,8 +36,6 @@ namespace XamSpeak
 
 		static async Task<T> GetDataObjectFromAPI<T>(string apiUrl)
 		{
-			OnHttpClientConnectionStarted();
-
 			try
 			{
 				using (var stream = await _client.GetStreamAsync(apiUrl))
@@ -55,7 +52,9 @@ namespace XamSpeak
 			{
 				DebugHelpers.PrintException(e);
 
-				if (e.Message.Contains("429"))
+                if (e.Message.Contains("401"))
+                    OnInvalidBingSpellCheckAPIKey();
+				else if (e.Message.Contains("429"))
 					OnError429_TooManySpellCheckAPIRequests();
 
 				return default(T);
@@ -64,10 +63,6 @@ namespace XamSpeak
 			{
 				DebugHelpers.PrintException(e);
 				return default(T);
-			}
-			finally
-			{
-				OnHttpClientConnectionEnded();
 			}
 		}
 
@@ -85,14 +80,11 @@ namespace XamSpeak
 			return client;
 		}
 
+        static void OnInvalidBingSpellCheckAPIKey() =>
+            InvalidBingSpellCheckAPIKey?.Invoke(null, EventArgs.Empty);
+
 		static void OnError429_TooManySpellCheckAPIRequests() =>
 			Error429_TooManySpellCheckAPIRequests?.Invoke(null, EventArgs.Empty);
-
-		static void OnHttpClientConnectionStarted() =>
-			HttpClientConnectionStarted?.Invoke(null, EventArgs.Empty);
-
-		static void OnHttpClientConnectionEnded() =>
-			HttpClientConnectionEnded?.Invoke(null, EventArgs.Empty);
 		#endregion
 	}
 }

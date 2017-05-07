@@ -43,26 +43,26 @@ namespace XamSpeak
 
 		public bool IsInternetConnectionInUse
 		{
-			get { return _isInternetConnectionInUse; }
-			set { SetProperty(ref _isInternetConnectionInUse, value); }
+			get => _isInternetConnectionInUse;
+			set => SetProperty(ref _isInternetConnectionInUse, value);
 		}
 
 		public string SpokenTextLabelText
 		{
-			get { return _spokenTextLabelText; }
-			set { SetProperty(ref _spokenTextLabelText, value); }
+			get => _spokenTextLabelText;
+			set => SetProperty(ref _spokenTextLabelText, value);
 		}
 
 		public string ActivityIndicatorLabelText
 		{
-			get { return _activityIndicatorLabelText; }
-			set { SetProperty(ref _activityIndicatorLabelText, value); }
+			get => _activityIndicatorLabelText;
+			set => SetProperty(ref _activityIndicatorLabelText, value);
 		}
 
 		public bool IsActivityIndicatorDisplayed
 		{
-			get { return _isActivityIndicatorDisplayed; }
-			set { SetProperty(ref _isActivityIndicatorDisplayed, value); }
+			get => _isActivityIndicatorDisplayed;
+			set => SetProperty(ref _isActivityIndicatorDisplayed, value);
 		}
 		#endregion
 
@@ -225,8 +225,7 @@ namespace XamSpeak
 				{
 					var firstSuggestion = misspelledWord.Suggesstions.FirstOrDefault();
 
-					double confidenceScore;
-					double.TryParse(firstSuggestion?.ConfidenceScore, out confidenceScore);
+					double.TryParse(firstSuggestion?.ConfidenceScore, out double confidenceScore);
 
 					if (confidenceScore > 0.80)
 					{

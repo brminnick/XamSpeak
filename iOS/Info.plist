@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.minnick.xamspeak</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -44,5 +44,7 @@
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Use the camera to take a photo of text</string>
+	<key>CFBundleVersion</key>
+	<string>2</string>
 </dict>
 </plist>

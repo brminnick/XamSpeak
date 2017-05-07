@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.minnick.xamspeak">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="2" android:versionName="1.1" package="com.minnick.xamspeak">
 	<uses-sdk android:minSdkVersion="15" />
-	<application android:label="XamSpeak">
-	</application>
+	<application android:label="XamSpeak"></application>
 </manifest>

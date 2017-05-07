@@ -18,6 +18,7 @@ namespace XamSpeak
 		#endregion
 
 		#region Events
+        public static event EventHandler InvalidBingSpellCheckAPIKey;
 		public static event EventHandler Error429_TooManySpellCheckAPIRequests;
 		#endregion
 
@@ -47,11 +48,13 @@ namespace XamSpeak
 					return _serializer.Deserialize<T>(json);
 				}
 			}
-			catch(HttpRequestException e)
+			catch (HttpRequestException e)
 			{
 				DebugHelpers.PrintException(e);
 
-				if (e.Message.Contains("429"))
+                if (e.Message.Contains("401"))
+                    OnInvalidBingSpellCheckAPIKey();
+				else if (e.Message.Contains("429"))
 					OnError429_TooManySpellCheckAPIRequests();
 
 				return default(T);
@@ -76,6 +79,9 @@ namespace XamSpeak
 
 			return client;
 		}
+
+        static void OnInvalidBingSpellCheckAPIKey() =>
+            InvalidBingSpellCheckAPIKey?.Invoke(null, EventArgs.Empty);
 
 		static void OnError429_TooManySpellCheckAPIRequests() =>
 			Error429_TooManySpellCheckAPIRequests?.Invoke(null, EventArgs.Empty);

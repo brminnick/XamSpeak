@@ -8,264 +8,303 @@ using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
 
 using Plugin.Media;
-using Plugin.Media.Abstractions;
 using Plugin.TextToSpeech;
+using Plugin.Media.Abstractions;
+
 using Xamarin.Forms;
 
 namespace XamSpeak
 {
-	public class TextToSpeechViewModel : BaseViewModel
-	{
-		#region Fields
-		string _spokenTextLabelText, _activityIndicatorLabelText;
-		bool _isActivityIndicatorDisplayed;
-		Command _takePictureButtonCommand;
-		#endregion
+    public class TextToSpeechViewModel : BaseViewModel
+    {
+        #region Fields
+        int _isInternetConnectionInUseCount;
+        string _spokenTextLabelText, _activityIndicatorLabelText;
+        bool _isActivityIndicatorDisplayed, _isInternetConnectionInUse;
+        Command _takePictureButtonCommand;
+        #endregion
 
-		#region Events
-		public event EventHandler NoTextDetected;
-		public event EventHandler NoCameraDetected;
-		#endregion
+        #region Events
+        public event EventHandler OCRFailed;
+        public event EventHandler SpellCheckFailed;
+        public event EventHandler NoCameraDetected;
+        public event EventHandler InvalidComputerVisionAPIKey;
+		public event EventHandler InternetConnectionUnavailable;
+        #endregion
 
-		#region Properties
-		public Command TakePictureButtonCommand => _takePictureButtonCommand ??
-			(_takePictureButtonCommand = new Command(async () => await ExecuteTakePictureButtonCommand()));
+        #region Properties
+        public Command TakePictureButtonCommand => _takePictureButtonCommand ??
+            (_takePictureButtonCommand = new Command(async () => await ExecuteTakePictureButtonCommand()));
 
-		public string SpokenTextLabelText
-		{
-			get { return _spokenTextLabelText; }
-			set { SetProperty(ref _spokenTextLabelText, value); }
-		}
+        public bool IsInternetConnectionInUse
+        {
+            get => _isInternetConnectionInUse;
+            set => SetProperty(ref _isInternetConnectionInUse, value);
+        }
 
-		public string ActivityIndicatorLabelText
-		{
-			get { return _activityIndicatorLabelText; }
-			set { SetProperty(ref _activityIndicatorLabelText, value); }
-		}
+        public string SpokenTextLabelText
+        {
+            get => _spokenTextLabelText;
+            set => SetProperty(ref _spokenTextLabelText, value);
+        }
 
-		public bool IsActivityIndicatorDisplayed
-		{
-			get { return _isActivityIndicatorDisplayed; }
-			set { SetProperty(ref _isActivityIndicatorDisplayed, value); }
-		}
-		#endregion
+        public string ActivityIndicatorLabelText
+        {
+            get => _activityIndicatorLabelText;
+            set => SetProperty(ref _activityIndicatorLabelText, value);
+        }
 
-		#region Methods
-		async Task ExecuteTakePictureButtonCommand()
-		{
-			SpokenTextLabelText = string.Empty;
+        public bool IsActivityIndicatorDisplayed
+        {
+            get => _isActivityIndicatorDisplayed;
+            set => SetProperty(ref _isActivityIndicatorDisplayed, value);
+        }
+        #endregion
 
-			await ExecuteNewPictureWorkflow();
-		}
+        #region Methods
+        async Task ExecuteTakePictureButtonCommand()
+        {
+            SpokenTextLabelText = string.Empty;
 
-		async Task ExecuteNewPictureWorkflow()
-		{
-			var mediaFile = await GetMediaFileFromCamera(Guid.NewGuid().ToString());
-			if (mediaFile == null)
-				return;
+            await ExecuteNewPictureWorkflow();
+        }
 
-			var ocrResults = await GetOcrResultsFromMediaFile(mediaFile);
+        async Task ExecuteNewPictureWorkflow()
+        {
+            var mediaFile = await GetMediaFileFromCamera(Guid.NewGuid().ToString());
+            if (mediaFile == null)
+            {
+                OnDisplayNoCameraDetected();
+                return;
+            }
 
-			if (ocrResults == null)
-				return;
+            var ocrResults = await GetOcrResultsFromMediaFile(mediaFile);
+            if (ocrResults == null)
+            {
+                OnOCRFailed();
+                return;
+            }
 
-			var listOfStringsFromOcrResults = GetTextFromOcrResults(ocrResults);
+            var listOfStringsFromOcrResults = GetTextFromOcrResults(ocrResults);
 
-			var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults);
+            var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults);
+            if (spellCheckedlistOfStringsFromOcrResults == null)
+            {
+                OnSpellCheckFailed();
+                return;
+            }
 
-			if (spellCheckedlistOfStringsFromOcrResults == null)
-				return;
+            SpeakText(spellCheckedlistOfStringsFromOcrResults);
+        }
 
-			SpeakText(spellCheckedlistOfStringsFromOcrResults);
-		}
+        async Task<MediaFile> GetMediaFileFromCamera(string photoName)
+        {
+            await CrossMedia.Current.Initialize();
 
-		async Task<MediaFile> GetMediaFileFromCamera(string photoName)
-		{
-			await CrossMedia.Current.Initialize();
+            if (!CrossMedia.Current.IsCameraAvailable || !CrossMedia.Current.IsTakePhotoSupported)
+                return null;
 
-			if (!CrossMedia.Current.IsCameraAvailable || !CrossMedia.Current.IsTakePhotoSupported)
-			{
-				OnDisplayNoCameraDetected();
+            var file = await CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
+            {
+                Directory = "XamSpeak",
+                Name = photoName,
+                PhotoSize = PhotoSize.Small,
+                DefaultCamera = CameraDevice.Rear,
+            });
+
+            return file;
+        }
+
+        async Task<OcrResults> GetOcrResultsFromMediaFile(MediaFile mediaFile)
+        {
+            ActivateActivityIndicator("Reading Text");
+
+            try
+            {
+                var visionClient = new VisionServiceClient(CognitiveServicesConstants.ComputerVisionAPIKey);
+                var ocrResults = await visionClient.RecognizeTextAsync(ConverterHelpers.ConvertMediaFileToStream(mediaFile, false));
+
+                return ocrResults;
+            }
+            catch (Exception e)
+            {
+                DebugHelpers.PrintException(e);
+
+                if ((e is ClientException) && ((ClientException)e).HttpStatus == 0)
+                    OnInvalidComputerVisionAPIKey();
+                else
+                    OnInternetConnectionUnavailable();
+
 				return null;
-			}
+            }
+            finally
+            {
+                DeactivateActivityIndicator();
+            }
+        }
 
-			var file = await CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
-			{
-				Directory = "XamSpeak",
-				Name = photoName,
-				PhotoSize = PhotoSize.Small,
-				DefaultCamera = CameraDevice.Rear,
-			});
+        List<string> GetTextFromOcrResults(OcrResults ocrResults)
+        {
+            var ocrModelList = new List<OcrTextLocationModel>();
 
-			return file;
-		}
+            foreach (Region region in ocrResults.Regions)
+            {
+                foreach (Line line in region.Lines)
+                {
+                    var lineStringBuilder = new StringBuilder();
 
-		async Task<OcrResults> GetOcrResultsFromMediaFile(MediaFile mediaFile)
-		{
-			ActivateActivityIndicator("Reading Text");
+                    foreach (Word word in line.Words)
+                    {
+                        lineStringBuilder.Append(word.Text);
+                        lineStringBuilder.Append(" ");
+                    }
 
-			try
-			{
-				var visionClient = new VisionServiceClient(CognitiveServicesConstants.ComputerVisionAPIKey);
-				var ocrResults = await visionClient.RecognizeTextAsync(ConverterHelpers.ConvertMediaFileToStream(mediaFile, false));
+                    ocrModelList.Add(new OcrTextLocationModel(lineStringBuilder.ToString(), line.Rectangle.Top, line.Rectangle.Left));
+                }
+            }
 
-				return ocrResults;
-			}
-			catch (Exception e)
-			{
-				DebugHelpers.PrintException(e);
-				return default(OcrResults);
-			}
-			finally
-			{
-				DeactivateActivityIndicator();
-			}
-		}
+            return CreateStringFromOcrModelList(ocrModelList);
+        }
 
-		List<string> GetTextFromOcrResults(OcrResults ocrResults)
-		{
-			var ocrModelList = new List<OcrTextLocationModel>();
+        List<string> CreateStringFromOcrModelList(List<OcrTextLocationModel> ocrModelList)
+        {
+            var stringList = new List<string>();
+            var stringBuilder = new StringBuilder();
 
-			foreach (Region region in ocrResults.Regions)
-			{
-				foreach (Line line in region.Lines)
-				{
-					var lineStringBuilder = new StringBuilder();
+            var maximumTop = ocrModelList.OrderBy(x => x.Top).FirstOrDefault().Top;
 
-					foreach (Word word in line.Words)
-					{
-						lineStringBuilder.Append(word.Text);
-						lineStringBuilder.Append(" ");
-					}
+            var sortedOcrModelList = ocrModelList.OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
 
-					ocrModelList.Add(new OcrTextLocationModel(lineStringBuilder.ToString(), line.Rectangle.Top, line.Rectangle.Left));
-				}
-			}
+            var previousTop = 0.0;
+            foreach (OcrTextLocationModel ocrModel in sortedOcrModelList)
+            {
+                var percentageBelowPreviousOcrModel = (ocrModel.Top - previousTop) / maximumTop;
 
-			return CreateStringFromOcrModelList(ocrModelList);
-		}
+                if (percentageBelowPreviousOcrModel <= 0.01)
+                {
+                    stringBuilder.Append(" ");
+                    stringBuilder.Append($"{ocrModel.Text}");
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(stringBuilder.ToString()))
+                        stringList.Add(stringBuilder.ToString());
 
-		List<string> CreateStringFromOcrModelList(List<OcrTextLocationModel> ocrModelList)
-		{
-			var stringList = new List<string>();
-			var stringBuilder = new StringBuilder();
+                    stringBuilder.Clear();
+                    stringBuilder.Append($"{ocrModel.Text}");
+                }
 
-			var maximumTop = ocrModelList.OrderBy(x => x.Top).FirstOrDefault().Top;
+                previousTop = ocrModel.Top;
 
-			var sortedOcrModelList = ocrModelList.OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
+                if (sortedOcrModelList.LastOrDefault().Equals(ocrModel))
+                    stringList.Add(stringBuilder.ToString());
+            }
 
-			var previousTop = 0.0;
-			foreach (OcrTextLocationModel ocrModel in sortedOcrModelList)
-			{
-				var percentageBelowPreviousOcrModel = (ocrModel.Top - previousTop) / maximumTop;
+            return stringList;
+        }
 
-				if (percentageBelowPreviousOcrModel <= 0.01)
-				{
-					stringBuilder.Append(" ");
-					stringBuilder.Append($"{ocrModel.Text}");
-				}
-				else
-				{
-					if (!string.IsNullOrEmpty(stringBuilder.ToString()))
-						stringList.Add(stringBuilder.ToString());
+        async Task<List<string>> GetSpellCheckedStringList(List<string> stringList)
+        {
+            ActivateActivityIndicator("Performing Spell Check");
 
-					stringBuilder.Clear();
-					stringBuilder.Append($"{ocrModel.Text}");
-				}
+            int listIndex = 0;
+            var correctedLineItemList = new List<string>();
 
-				previousTop = ocrModel.Top;
+            try
+            {
+                foreach (string lineItem in stringList)
+                {
+                    correctedLineItemList.Add(lineItem);
 
-				if (sortedOcrModelList.LastOrDefault().Equals(ocrModel))
-					stringList.Add(stringBuilder.ToString());
-			}
+                    var misspelledWordList = await HttpHelpers.SpellCheckString(lineItem);
 
-			return stringList;
-		}
+                    if (misspelledWordList == null)
+                        return null;
 
-		async Task<List<string>> GetSpellCheckedStringList(List<string> stringList)
-		{
-			ActivateActivityIndicator("Performing Spell Check");
+                    foreach (var misspelledWord in misspelledWordList)
+                    {
+                        var firstSuggestion = misspelledWord.Suggesstions.FirstOrDefault();
 
-			int listIndex = 0;
-			var correctedLineItemList = new List<string>();
+                        double.TryParse(firstSuggestion?.ConfidenceScore, out double confidenceScore);
 
-			foreach (string lineItem in stringList)
-			{
-				correctedLineItemList.Add(lineItem);
+                        if (confidenceScore > 0.80)
+                        {
+                            var correctedLineItem = correctedLineItemList[listIndex].Replace(misspelledWord.MisspelledWord, firstSuggestion?.Suggestion);
 
-				var misspelledWordList = await HttpHelpers.SpellCheckString(lineItem);
+                            correctedLineItemList[listIndex] = correctedLineItem;
+                        }
+                    }
 
-				if (misspelledWordList == null)
-					return null;
+                    listIndex++;
+                }
+            }
+            finally
+            {
+                DeactivateActivityIndicator();
+            }
 
-				foreach (var misspelledWord in misspelledWordList)
-				{
-					var firstSuggestion = misspelledWord.Suggesstions.FirstOrDefault();
+            return correctedLineItemList;
 
-					double confidenceScore;
-					double.TryParse(firstSuggestion?.ConfidenceScore, out confidenceScore);
+        }
 
-					if (confidenceScore > 0.80)
-					{
-						var correctedLineItem = correctedLineItemList[listIndex].Replace(misspelledWord.MisspelledWord, firstSuggestion?.Suggestion);
+        void SpeakText(List<string> textList)
+        {
+            var stringBuilder = new StringBuilder();
 
-						correctedLineItemList[listIndex] = correctedLineItem;
-					}
-				}
+            foreach (var lineOfText in textList)
+            {
+                stringBuilder.AppendLine(lineOfText);
+                SpokenTextLabelText = stringBuilder.ToString();
 
-				listIndex++;
-			}
+                CrossTextToSpeech.Current.Speak(lineOfText, true);
+            }
 
-			DeactivateActivityIndicator();
+        }
 
-			return correctedLineItemList;
+        void ActivateActivityIndicator(string activityIndicatorLabelText)
+        {
+            IsInternetConnectionInUse = ++_isInternetConnectionInUseCount > 0;
+            IsActivityIndicatorDisplayed = true;
+            ActivityIndicatorLabelText = activityIndicatorLabelText;
+        }
 
-		}
+        void DeactivateActivityIndicator()
+        {
+            IsInternetConnectionInUse = --_isInternetConnectionInUseCount != 0;
+            IsActivityIndicatorDisplayed = false;
+            ActivityIndicatorLabelText = default(string);
+        }
 
-		void SpeakText(List<string> textList)
-		{
-			var stringBuilder = new StringBuilder();
+        void OnDisplayNoCameraDetected() =>
+            NoCameraDetected?.Invoke(this, EventArgs.Empty);
 
-			foreach (var lineOfText in textList)
-			{
-				stringBuilder.AppendLine(lineOfText);
-				SpokenTextLabelText = stringBuilder.ToString();
+        void OnOCRFailed() =>
+            OCRFailed?.Invoke(this, EventArgs.Empty);
 
-				CrossTextToSpeech.Current.Speak(lineOfText, true);
-			}
+        void OnSpellCheckFailed() =>
+            SpellCheckFailed?.Invoke(this, EventArgs.Empty);
 
-		}
+        void OnInvalidComputerVisionAPIKey() =>
+            InvalidComputerVisionAPIKey?.Invoke(this, EventArgs.Empty);
 
-		void ActivateActivityIndicator(string activityIndicatorLabelText)
-		{
-			IsActivityIndicatorDisplayed = true;
-			ActivityIndicatorLabelText = activityIndicatorLabelText;
-		}
+        void OnInternetConnectionUnavailable() =>
+            InternetConnectionUnavailable?.Invoke(this, EventArgs.Empty);
+        #endregion
 
-		void DeactivateActivityIndicator()
-		{
-			IsActivityIndicatorDisplayed = false;
-			ActivityIndicatorLabelText = default(string);
-		}
+        #region Classes
+        class OcrTextLocationModel
+        {
+            public OcrTextLocationModel(string text, int top, int left)
+            {
+                Text = text;
+                Top = top;
+                Left = left;
+            }
 
-		void OnDisplayNoCameraDetected() =>
-			NoCameraDetected?.Invoke(this, EventArgs.Empty);
-		#endregion
-
-		#region Classes
-		class OcrTextLocationModel
-		{
-			public OcrTextLocationModel(string text, int top, int left)
-			{
-				Text = text;
-				Top = top;
-				Left = left;
-			}
-
-			public string Text { get; }
-			public double Top { get; }
-			public double Left { get; }
-		}
-		#endregion
-	}
+            public string Text { get; }
+            public double Top { get; }
+            public double Left { get; }
+        }
+        #endregion
+    }
 }

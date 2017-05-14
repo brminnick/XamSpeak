@@ -26,7 +26,7 @@ namespace XamSpeak
             activityIndicator.SetBinding(IsVisibleProperty, nameof(ViewModel.IsActivityIndicatorDisplayed));
             activityIndicator.SetBinding(ActivityIndicator.IsRunningProperty, nameof(ViewModel.IsActivityIndicatorDisplayed));
 
-            Content = new StackLayout
+            var stackLayout = new StackLayout
             {
                 Margin = new Thickness(20, 0),
                 VerticalOptions = LayoutOptions.Center,
@@ -38,6 +38,8 @@ namespace XamSpeak
                     takePictureButton,
                 }
             };
+
+            Content = new ScrollView { Content = stackLayout };
 
             Title = "XamSpeak";
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using System.Windows.Input;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -12,6 +13,7 @@ using Plugin.TextToSpeech;
 using Plugin.Media.Abstractions;
 
 using Xamarin.Forms;
+using Plugin.TextToSpeech.Abstractions;
 
 namespace XamSpeak
 {
@@ -21,7 +23,7 @@ namespace XamSpeak
         int _isInternetConnectionInUseCount;
         string _spokenTextLabelText, _activityIndicatorLabelText;
         bool _isActivityIndicatorDisplayed, _isInternetConnectionInUse;
-        Command _takePictureButtonCommand;
+        ICommand _takePictureButtonCommand;
         #endregion
 
         #region Events
@@ -33,7 +35,7 @@ namespace XamSpeak
         #endregion
 
         #region Properties
-        public Command TakePictureButtonCommand => _takePictureButtonCommand ??
+        public ICommand TakePictureButtonCommand => _takePictureButtonCommand ??
             (_takePictureButtonCommand = new Command(async () => await ExecuteTakePictureButtonCommand()));
 
         public bool IsInternetConnectionInUse
@@ -256,9 +258,8 @@ namespace XamSpeak
                 stringBuilder.AppendLine(lineOfText);
                 SpokenTextLabelText = stringBuilder.ToString();
 
-                CrossTextToSpeech.Current.Speak(lineOfText, true);
+                CrossTextToSpeech.Current.Speak(lineOfText);
             }
-
         }
 
         void ActivateActivityIndicator(string activityIndicatorLabelText)

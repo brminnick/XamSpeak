@@ -13,7 +13,7 @@ namespace XamSpeak
     public static class HttpHelpers
     {
         #region Constant Fields
-        static readonly HttpClient _client = CreateHttpClient();
+        static readonly Lazy<HttpClient> _clientHolder = new Lazy<HttpClient>(CreateHttpClient);
         static readonly JsonSerializer _serializer = new JsonSerializer();
         #endregion
 
@@ -22,14 +22,18 @@ namespace XamSpeak
         public static event EventHandler Error429_TooManySpellCheckAPIRequests;
         #endregion
 
+        #region Properties
+        static HttpClient Client => _clientHolder.Value;
+        #endregion
+
         #region Methods
         public static async Task<List<MisspelledWordModel>> SpellCheckString(string text)
         {
-            _client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", CognitiveServicesConstants.BingSpellCheckAPIKey);
+            Client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", CognitiveServicesConstants.BingSpellCheckAPIKey);
 
             var flaggedTokenList = await GetDataObjectFromAPI<MisspelledWordRootObjectModel>($"https://api.cognitive.microsoft.com/bing/v5.0/spellcheck/?text={text}");
 
-            _client.DefaultRequestHeaders.Remove("Ocp-Apim-Subscription-Key");
+            Client.DefaultRequestHeaders.Remove("Ocp-Apim-Subscription-Key");
 
             return flaggedTokenList?.FlaggedTokens;
         }
@@ -38,7 +42,7 @@ namespace XamSpeak
         {
             try
             {
-                using (var stream = await _client.GetStreamAsync(apiUrl).ConfigureAwait(false))
+                using (var stream = await Client.GetStreamAsync(apiUrl).ConfigureAwait(false))
                 using (var reader = new StreamReader(stream))
                 using (var json = new JsonTextReader(reader))
                 {

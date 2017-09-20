@@ -13,7 +13,6 @@ using Plugin.TextToSpeech;
 using Plugin.Media.Abstractions;
 
 using Xamarin.Forms;
-using Plugin.TextToSpeech.Abstractions;
 
 namespace XamSpeak
 {
@@ -31,7 +30,7 @@ namespace XamSpeak
         public event EventHandler SpellCheckFailed;
         public event EventHandler NoCameraDetected;
         public event EventHandler InvalidComputerVisionAPIKey;
-		public event EventHandler InternetConnectionUnavailable;
+        public event EventHandler InternetConnectionUnavailable;
         #endregion
 
         #region Properties
@@ -137,7 +136,7 @@ namespace XamSpeak
                 else
                     OnInternetConnectionUnavailable();
 
-				return null;
+                return null;
             }
             finally
             {
@@ -170,10 +169,13 @@ namespace XamSpeak
 
         List<string> CreateStringFromOcrModelList(List<OcrTextLocationModel> ocrModelList)
         {
+            if (ocrModelList == null || ocrModelList.Count <= 0)
+                return new List<string>();
+
             var stringList = new List<string>();
             var stringBuilder = new StringBuilder();
 
-            var maximumTop = ocrModelList.OrderBy(x => x.Top).FirstOrDefault().Top;
+            var maximumTop = ocrModelList.OrderBy(x => x.Top).FirstOrDefault()?.Top;
 
             var sortedOcrModelList = ocrModelList.OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
 

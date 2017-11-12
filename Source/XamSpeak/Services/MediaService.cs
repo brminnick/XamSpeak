@@ -28,7 +28,7 @@ namespace XamSpeak
                 PhotoSize = PhotoSize.Small,
                 Directory = "XamSpeak",
                 Name = photoName,
-                DefaultCamera = CameraDevice.Front,
+                DefaultCamera = CameraDevice.Rear,
             }).ConfigureAwait(false);
 
             return file;

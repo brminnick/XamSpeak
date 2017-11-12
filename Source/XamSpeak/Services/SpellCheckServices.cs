@@ -57,7 +57,7 @@ namespace XamSpeak
         {
             try
             {
-                var flaggedTokenList = await GetDataObjectFromAPI<MisspelledWordRootObjectModel>($"https://api.cognitive.microsoft.com/bing/v5.0/spellcheck/?text={text}");
+                var flaggedTokenList = await GetDataObjectFromAPI<MisspelledWordRootObjectModel>($"https://api.cognitive.microsoft.com/bing/v7.0/spellcheck/?text={text}");
 
                 return flaggedTokenList?.FlaggedTokens;
             }

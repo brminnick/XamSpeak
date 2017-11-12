@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-
-using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
 
-using Plugin.Media;
-using Plugin.TextToSpeech;
 using Plugin.Media.Abstractions;
 
 using Xamarin.Forms;
@@ -28,7 +22,6 @@ namespace XamSpeak
         #region Events
         public event EventHandler OCRFailed;
         public event EventHandler SpellCheckFailed;
-        public event EventHandler NoCameraDetected;
         public event EventHandler InternetConnectionUnavailable;
         #endregion
 
@@ -56,21 +49,18 @@ namespace XamSpeak
         #endregion
 
         #region Methods
-        async Task ExecuteTakePictureButtonCommand()
+        Task ExecuteTakePictureButtonCommand()
         {
             SpokenTextLabelText = string.Empty;
 
-            await ExecuteNewPictureWorkflow();
+            return ExecuteNewPictureWorkflow();
         }
 
         async Task ExecuteNewPictureWorkflow()
         {
-            var mediaFile = await GetMediaFileFromCamera(Guid.NewGuid().ToString());
+            var mediaFile = await MediaServices.GetMediaFileFromCamera(Guid.NewGuid().ToString());
             if (mediaFile == null)
-            {
-                OnDisplayNoCameraDetected();
                 return;
-            }
 
             var ocrResults = await GetOcrResults(mediaFile);
             if (ocrResults == null)
@@ -114,24 +104,6 @@ namespace XamSpeak
             }
         }
 
-        async Task<MediaFile> GetMediaFileFromCamera(string photoName)
-        {
-            await CrossMedia.Current.Initialize();
-
-            if (!CrossMedia.Current.IsCameraAvailable || !CrossMedia.Current.IsTakePhotoSupported)
-                return null;
-
-            var file = await CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
-            {
-                Directory = "XamSpeak",
-                Name = photoName,
-                PhotoSize = PhotoSize.Small,
-                DefaultCamera = CameraDevice.Rear,
-            });
-
-            return file;
-        }
-
         async Task<List<string>> GetSpellCheckedStringList(List<string> stringList)
         {
             ActivateActivityIndicator("Performing Spell Check");
@@ -163,9 +135,6 @@ namespace XamSpeak
             IsActivityIndicatorDisplayed = false;
             ActivityIndicatorLabelText = default(string);
         }
-
-        void OnDisplayNoCameraDetected() =>
-            NoCameraDetected?.Invoke(this, EventArgs.Empty);
 
         void OnSpellCheckFailed() =>
             SpellCheckFailed?.Invoke(this, EventArgs.Empty);

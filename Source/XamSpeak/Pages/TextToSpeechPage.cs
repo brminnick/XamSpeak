@@ -49,7 +49,7 @@ namespace XamSpeak
 
             ViewModel.OCRFailed += HandleOCRFailed;
             ViewModel.SpellCheckFailed += HandleSpellCheckFailed;
-            ViewModel.NoCameraDetected += HandleNoCameraDetected;
+            MediaServices.NoCameraDetected += HandleNoCameraDetected;
             OCRServices.InvalidComputerVisionAPIKey += HandleInvalidComputerVisionAPIKey;
 			SpellCheckServices.InvalidBingSpellCheckAPIKey += HandleInvalidBingSpellCheckAPIKey;
 			ViewModel.InternetConnectionUnavailable += HandleInternetConnectionUnavailable;
@@ -62,7 +62,7 @@ namespace XamSpeak
 
             ViewModel.OCRFailed -= HandleOCRFailed;
             ViewModel.SpellCheckFailed -= HandleSpellCheckFailed;
-			ViewModel.NoCameraDetected -= HandleNoCameraDetected;
+            MediaServices.NoCameraDetected -= HandleNoCameraDetected;
             OCRServices.InvalidComputerVisionAPIKey -= HandleInvalidComputerVisionAPIKey;
 			SpellCheckServices.InvalidBingSpellCheckAPIKey -= HandleInvalidBingSpellCheckAPIKey;
             ViewModel.InternetConnectionUnavailable -= HandleInternetConnectionUnavailable;

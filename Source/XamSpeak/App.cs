@@ -8,8 +8,8 @@ namespace XamSpeak
 		{
 			MainPage = new NavigationPage(new TextToSpeechPage())
 			{
-				BarTextColor = Color.White,
-				BarBackgroundColor = Color.FromHex("38A496")
+				BarTextColor = ColorConstants.NavigationBarTextColor,
+                BarBackgroundColor = ColorConstants.NavigationBarBackgroundColor
 			};
 		}
 	}

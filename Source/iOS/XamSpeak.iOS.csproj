@@ -128,6 +128,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="CustomRenderers\" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -140,6 +142,8 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
+    <Compile Include="CustomRenderers\NavigationPageCustomRenderer.cs" />
+    <Compile Include="Extensions\UIColorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XamSpeak\XamSpeak.csproj">

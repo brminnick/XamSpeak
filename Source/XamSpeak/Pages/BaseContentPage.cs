@@ -12,7 +12,7 @@ namespace XamSpeak
         public BaseContentPage()
         {
             BindingContext = ViewModel;
-            BackgroundColor = Color.FromHex("A4EBE2");
+            BackgroundColor = ColorConstants.ContentPageBackgroundColor;
             this.SetBinding(IsBusyProperty, nameof(BaseViewModel.IsInternetConnectionActive));
         }
         #endregion

@@ -220,7 +220,7 @@ namespace XamSpeak
                 {
                     correctedLineItemList.Add(lineItem);
 
-                    var misspelledWordList = await HttpHelpers.SpellCheckString(lineItem);
+                    var misspelledWordList = await SpellCheckServices.SpellCheckString(lineItem);
 
                     if (misspelledWordList == null)
                         return null;

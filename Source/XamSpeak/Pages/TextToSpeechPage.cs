@@ -53,9 +53,9 @@ namespace XamSpeak
             ViewModel.SpellCheckFailed += HandleSpellCheckFailed;
             ViewModel.NoCameraDetected += HandleNoCameraDetected;
             ViewModel.InvalidComputerVisionAPIKey += HandleInvalidComputerVisionAPIKey;
-			HttpHelpers.InvalidBingSpellCheckAPIKey += HandleInvalidBingSpellCheckAPIKey;
+			SpellCheckServices.InvalidBingSpellCheckAPIKey += HandleInvalidBingSpellCheckAPIKey;
 			ViewModel.InternetConnectionUnavailable += HandleInternetConnectionUnavailable;
-            HttpHelpers.Error429_TooManySpellCheckAPIRequests += HandleError429_TooManySpellCheckAPIRequests;
+            SpellCheckServices.Error429_TooManySpellCheckAPIRequests += HandleError429_TooManySpellCheckAPIRequests;
         }
 
         protected override void OnDisappearing()
@@ -66,9 +66,9 @@ namespace XamSpeak
             ViewModel.SpellCheckFailed -= HandleSpellCheckFailed;
 			ViewModel.NoCameraDetected -= HandleNoCameraDetected;
             ViewModel.InvalidComputerVisionAPIKey -= HandleInvalidComputerVisionAPIKey;
-			HttpHelpers.InvalidBingSpellCheckAPIKey -= HandleInvalidBingSpellCheckAPIKey;
+			SpellCheckServices.InvalidBingSpellCheckAPIKey -= HandleInvalidBingSpellCheckAPIKey;
             ViewModel.InternetConnectionUnavailable -= HandleInternetConnectionUnavailable;
-            HttpHelpers.Error429_TooManySpellCheckAPIRequests -= HandleError429_TooManySpellCheckAPIRequests;
+            SpellCheckServices.Error429_TooManySpellCheckAPIRequests -= HandleError429_TooManySpellCheckAPIRequests;
         }
 
 		void HandleInternetConnectionUnavailable(object sender, EventArgs e)

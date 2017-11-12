@@ -2,16 +2,23 @@
 
 namespace XamSpeak
 {
-	public class BaseContentPage<TViewModel> : ContentPage where TViewModel : BaseViewModel, new()
-	{
-		TViewModel _viewModel;
+    public class BaseContentPage<TViewModel> : ContentPage where TViewModel : BaseViewModel, new()
+    {
+        #region Fields
+        TViewModel _viewModel;
+        #endregion
 
-		public BaseContentPage()
-		{
-			BindingContext = ViewModel;
-			BackgroundColor = Color.FromHex("A4EBE2");
-		}
+        #region Constructors
+        public BaseContentPage()
+        {
+            BindingContext = ViewModel;
+            BackgroundColor = Color.FromHex("A4EBE2");
+            this.SetBinding(IsBusyProperty, nameof(BaseViewModel.IsInternetConnectionActive));
+        }
+        #endregion
 
-		protected TViewModel ViewModel => _viewModel ?? (_viewModel = new TViewModel());
-	}
+        #region Properties
+        protected TViewModel ViewModel => _viewModel ?? (_viewModel = new TViewModel());
+        #endregion
+    }
 }

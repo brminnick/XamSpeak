@@ -11,6 +11,8 @@
 		<Folder Include="Pages\" />
 		<Folder Include="ViewModels\" />
 		<Folder Include="Views\" />
+		<Folder Include="Services\" />
+		<Folder Include="Services\Base\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Xam.Plugin.Media" Version="3.0.1" />

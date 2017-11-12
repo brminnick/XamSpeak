@@ -41,41 +41,14 @@ namespace XamSpeak
 
             var httpContent = new StringContent(stringPayload, Encoding.UTF8, "application/json");
 
-            try
+            using (var stream = await Client.GetStreamAsync(apiUrl).ConfigureAwait(false))
+            using (var reader = new StreamReader(stream))
+            using (var json = new JsonTextReader(reader))
             {
-                UpdateActivityIndicatorStatus(true);
+                if (json == null)
+                    return default(TDataObject);
 
-                using (var stream = await Client.GetStreamAsync(apiUrl).ConfigureAwait(false))
-                using (var reader = new StreamReader(stream))
-                using (var json = new JsonTextReader(reader))
-                {
-                    if (json == null)
-                        return default(TDataObject);
-
-                    return await Task.Run(() => Serializer.Deserialize<TDataObject>(json)).ConfigureAwait(false);
-                }
-            }
-            finally
-            {
-                UpdateActivityIndicatorStatus(false);
-            }
-        }
-
-        static void UpdateActivityIndicatorStatus(bool isActivityIndicatorDisplayed)
-        {
-            var baseNavigationPage = Application.Current.MainPage as NavigationPage;
-            var currentPage = baseNavigationPage.CurrentPage as ContentPage;
-            var currentViewModel = currentPage.BindingContext as BaseViewModel;
-
-            if (isActivityIndicatorDisplayed)
-            {
-                currentViewModel.IsInternetConnectionActive = true;
-                _networkIndicatorCount++;
-            }
-            else if (--_networkIndicatorCount <= 0)
-            {
-                currentViewModel.IsInternetConnectionActive = false;
-                _networkIndicatorCount = 0;
+                return await Task.Run(() => Serializer.Deserialize<TDataObject>(json)).ConfigureAwait(false);
             }
         }
 

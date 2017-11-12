@@ -8,8 +8,6 @@ namespace XamSpeak
     {
         public TextToSpeechPage()
         {
-            this.SetBinding(IsBusyProperty, nameof(ViewModel.IsInternetConnectionInUse));
-
             var takePictureButton = new TakePhotoButton { Text = "   Take A Picture Of Text   " };
             var inverseBoolConverter = new InverseBoolConverter();
             var inverseBoolBinding = new Binding(nameof(ViewModel.IsActivityIndicatorDisplayed), BindingMode.Default, inverseBoolConverter, ViewModel.IsActivityIndicatorDisplayed);
@@ -52,7 +50,7 @@ namespace XamSpeak
             ViewModel.OCRFailed += HandleOCRFailed;
             ViewModel.SpellCheckFailed += HandleSpellCheckFailed;
             ViewModel.NoCameraDetected += HandleNoCameraDetected;
-            ViewModel.InvalidComputerVisionAPIKey += HandleInvalidComputerVisionAPIKey;
+            OCRServices.InvalidComputerVisionAPIKey += HandleInvalidComputerVisionAPIKey;
 			SpellCheckServices.InvalidBingSpellCheckAPIKey += HandleInvalidBingSpellCheckAPIKey;
 			ViewModel.InternetConnectionUnavailable += HandleInternetConnectionUnavailable;
             SpellCheckServices.Error429_TooManySpellCheckAPIRequests += HandleError429_TooManySpellCheckAPIRequests;
@@ -65,7 +63,7 @@ namespace XamSpeak
             ViewModel.OCRFailed -= HandleOCRFailed;
             ViewModel.SpellCheckFailed -= HandleSpellCheckFailed;
 			ViewModel.NoCameraDetected -= HandleNoCameraDetected;
-            ViewModel.InvalidComputerVisionAPIKey -= HandleInvalidComputerVisionAPIKey;
+            OCRServices.InvalidComputerVisionAPIKey -= HandleInvalidComputerVisionAPIKey;
 			SpellCheckServices.InvalidBingSpellCheckAPIKey -= HandleInvalidBingSpellCheckAPIKey;
             ViewModel.InternetConnectionUnavailable -= HandleInternetConnectionUnavailable;
             SpellCheckServices.Error429_TooManySpellCheckAPIRequests -= HandleError429_TooManySpellCheckAPIRequests;

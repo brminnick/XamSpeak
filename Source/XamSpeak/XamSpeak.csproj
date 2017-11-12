@@ -19,6 +19,6 @@
 		<PackageReference Include="Xam.Plugins.TextToSpeech" Version="3.0.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
 		<PackageReference Include="Microsoft.ProjectOxford.Vision" Version="1.0.393" />
-		<PackageReference Include="Xamarin.Forms" Version="2.4.0.275-pre3" />
+		<PackageReference Include="Xamarin.Forms" Version="2.4.0.74863" />
 	</ItemGroup>
 </Project>

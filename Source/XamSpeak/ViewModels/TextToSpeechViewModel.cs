@@ -82,13 +82,13 @@ namespace XamSpeak
             SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
         }
 
-        Task<OcrResults> GetOcrResults(MediaFile mediaFile)
+        async Task<OcrResults> GetOcrResults(MediaFile mediaFile)
         {
             ActivateActivityIndicator("Reading Text");
 
             try
             {
-                return OCRServices.GetOcrResultsFromMediaFile(mediaFile);
+                return await OCRServices.GetOcrResultsFromMediaFile(mediaFile);
             }
             catch (Exception e)
             {
@@ -96,7 +96,7 @@ namespace XamSpeak
 
                 OnInternetConnectionUnavailable();
 
-                return Task.FromResult<OcrResults>(null);
+                return null;
             }
             finally
             {
@@ -104,17 +104,17 @@ namespace XamSpeak
             }
         }
 
-        Task<List<string>> GetSpellCheckedStringList(List<string> stringList)
+        async Task<List<string>> GetSpellCheckedStringList(List<string> stringList)
         {
             ActivateActivityIndicator("Performing Spell Check");
 
             try
             {
-                return SpellCheckServices.GetSpellCheckedStringList(stringList);
+                return await SpellCheckServices.GetSpellCheckedStringList(stringList);
             }
             catch (Exception)
             {
-                return Task.FromResult<List<string>>(null);
+                return null;
             }
             finally
             {

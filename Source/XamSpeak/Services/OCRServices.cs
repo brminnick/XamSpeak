@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
+
 using Plugin.Media.Abstractions;
 
 namespace XamSpeak
@@ -25,13 +27,11 @@ namespace XamSpeak
         #endregion
 
         #region Methods
-        public static async Task<OcrResults> GetOcrResultsFromMediaFile(MediaFile mediaFile)
+        public static Task<OcrResults> GetOcrResultsFromMediaFile(MediaFile mediaFile)
         {
             try
             {
-                var ocrResults = await VisionClient.RecognizeTextAsync(ConverterHelpers.ConvertMediaFileToStream(mediaFile, false));
-
-                return ocrResults;
+                return VisionClient.RecognizeTextAsync(ConverterHelpers.ConvertMediaFileToStream(mediaFile, false));
             }
             catch (ClientException e) when (e.HttpStatus == 0)
             {
@@ -39,7 +39,7 @@ namespace XamSpeak
 
                 OnInvalidComputerVisionAPIKey();
 
-                return null;
+                return Task.FromResult<OcrResults>(null);
             }
         }
 

@@ -15,7 +15,7 @@ namespace XamSpeak
         #region Fields
         int _isInternetConnectionInUseCount;
         string _spokenTextLabelText, _activityIndicatorLabelText;
-        bool _isActivityIndicatorDisplayed, _isInternetConnectionInUse;
+        bool _isActivityIndicatorDisplayed;
         ICommand _takePictureButtonCommand;
         #endregion
 

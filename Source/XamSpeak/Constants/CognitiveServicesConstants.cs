@@ -2,7 +2,7 @@
 {
     public static class CognitiveServicesConstants
     {
-#warning Add your free Cognitive Services API Keys
+#error Add your Cognitive Services API Keys
         //Sign up for a free Computer Vision API Key: https://aka.ms/yqx7kz
         public const string ComputerVisionAPIKey = "Enter Your API Key Here";
 

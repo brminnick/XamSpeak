@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Plugin.Permissions;
+
 using Xamarin.Forms;
 
 namespace XamSpeak
@@ -50,6 +52,7 @@ namespace XamSpeak
             ViewModel.OCRFailed += HandleOCRFailed;
             ViewModel.SpellCheckFailed += HandleSpellCheckFailed;
             MediaServices.NoCameraDetected += HandleNoCameraDetected;
+            MediaServices.PermissionsDenied += HandlePermissionsDenied;
             OCRServices.InvalidComputerVisionAPIKey += HandleInvalidComputerVisionAPIKey;
 			SpellCheckServices.InvalidBingSpellCheckAPIKey += HandleInvalidBingSpellCheckAPIKey;
 			ViewModel.InternetConnectionUnavailable += HandleInternetConnectionUnavailable;
@@ -63,10 +66,21 @@ namespace XamSpeak
             ViewModel.OCRFailed -= HandleOCRFailed;
             ViewModel.SpellCheckFailed -= HandleSpellCheckFailed;
             MediaServices.NoCameraDetected -= HandleNoCameraDetected;
+            MediaServices.PermissionsDenied -= HandlePermissionsDenied;
             OCRServices.InvalidComputerVisionAPIKey -= HandleInvalidComputerVisionAPIKey;
 			SpellCheckServices.InvalidBingSpellCheckAPIKey -= HandleInvalidBingSpellCheckAPIKey;
             ViewModel.InternetConnectionUnavailable -= HandleInternetConnectionUnavailable;
             SpellCheckServices.Error429_TooManySpellCheckAPIRequests -= HandleError429_TooManySpellCheckAPIRequests;
+        }
+
+        void HandlePermissionsDenied(object sender, EventArgs e)
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                var isAlertAccepted = await DisplayAlert("Open Settings?", "Storage and Camera Permission Need To Be Enabled", "Ok", "Cancel");
+                if (isAlertAccepted)
+                    CrossPermissions.Current.OpenAppSettings();
+            });
         }
 
 		void HandleInternetConnectionUnavailable(object sender, EventArgs e)

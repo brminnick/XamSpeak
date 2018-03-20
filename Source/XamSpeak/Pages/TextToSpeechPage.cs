@@ -39,9 +39,9 @@ namespace XamSpeak
                 }
             };
 
-            Content = new ScrollView { Content = stackLayout };
+			Title = "Text to Speech";
 
-            Title = "XamSpeak";
+			Content = new ScrollView { Content = stackLayout };
         }
 
         #region Methods

@@ -13,6 +13,8 @@ namespace XamSpeak
             _textToSpeechButton = new XamSpeakButton { Text = "   Text To Speech   " };
             _speakerIdentificationButton = new XamSpeakButton { Text = "   Speaker Identification   " };
 
+            Title = "XamSpeak";
+
             Content = new StackLayout
             {
                 HorizontalOptions = LayoutOptions.Center,
@@ -28,22 +30,22 @@ namespace XamSpeak
         {
             base.OnAppearing();
 
-            _textToSpeechButton.Clicked += HandleSpeakTextFromAPhotoButtonClicked;
-            _speakerIdentificationButton.Clicked += HandleIdentifySpeakerFromAudioButtonClicked;
+            _textToSpeechButton.Clicked += HandleTextToSpeechButtonClicked;
+            _speakerIdentificationButton.Clicked += HandleSpeakerIdentificationButtonClicked;
         }
 
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
 
-            _textToSpeechButton.Clicked -= HandleSpeakTextFromAPhotoButtonClicked;
-            _speakerIdentificationButton.Clicked -= HandleIdentifySpeakerFromAudioButtonClicked;
+            _textToSpeechButton.Clicked -= HandleTextToSpeechButtonClicked;
+            _speakerIdentificationButton.Clicked -= HandleSpeakerIdentificationButtonClicked;
         }
 
-        void HandleIdentifySpeakerFromAudioButtonClicked(object sender, EventArgs e) =>
+        void HandleSpeakerIdentificationButtonClicked(object sender, EventArgs e) =>
             Device.BeginInvokeOnMainThread(async () => await Navigation.PushAsync(new SpeakerIdentificationPage()));
 
-        void HandleSpeakTextFromAPhotoButtonClicked(object sender, EventArgs e) =>
+        void HandleTextToSpeechButtonClicked(object sender, EventArgs e) =>
             Device.BeginInvokeOnMainThread(async () => await Navigation.PushAsync(new TextToSpeechPage()));
     }
 }

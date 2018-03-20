@@ -14,7 +14,7 @@ namespace XamSpeak
         #endregion
 
         #region Properties
-        protected TViewModel ViewModel { get; }
+        protected TViewModel ViewModel { get; } = new TViewModel();
         #endregion
     }
 }

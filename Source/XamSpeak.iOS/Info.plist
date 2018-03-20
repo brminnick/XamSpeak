@@ -8,14 +8,12 @@
 	<string>XamSpeak</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.minnick.xamspeak</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.1</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
-	<string>8.0</string>
+	<string>10.0</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
@@ -44,7 +42,11 @@
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Use the camera to take a photo of text</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.0</string>
 	<key>CFBundleVersion</key>
-	<string>2</string>
+	<string>3</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Use the microphone to identify popular speakers!</string>
 </dict>
 </plist>

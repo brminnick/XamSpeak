@@ -2,9 +2,9 @@
 
 namespace XamSpeak
 {
-	public class TakePhotoButton : Button
+	public class XamSpeakButton : Button
 	{
-		public TakePhotoButton()
+		public XamSpeakButton()
 		{
 			BorderColor = Color.FromHex("38A496");
 			BackgroundColor = Color.FromHex("38A496");

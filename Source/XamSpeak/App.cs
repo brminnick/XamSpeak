@@ -6,7 +6,7 @@ namespace XamSpeak
 	{
 		public App()
 		{
-			MainPage = new NavigationPage(new TextToSpeechPage())
+			MainPage = new NavigationPage(new SelectionPage())
 			{
 				BarTextColor = ColorConstants.NavigationBarTextColor,
                 BarBackgroundColor = ColorConstants.NavigationBarBackgroundColor

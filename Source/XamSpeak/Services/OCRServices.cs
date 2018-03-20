@@ -13,7 +13,7 @@ namespace XamSpeak
     {
         #region Constant Fields
         readonly static Lazy<VisionServiceClient> _visionClientHolder = new Lazy<VisionServiceClient>(() =>
-                                                  new VisionServiceClient(CognitiveServicesConstants.ComputerVisionAPIKey));
+                                                  new VisionServiceClient(CognitiveServicesKeys.ComputerVisionAPIKey));
         #endregion
 
         #region Events 

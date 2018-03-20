@@ -10,7 +10,7 @@ namespace XamSpeak
     {
         public TextToSpeechPage()
         {
-            var takePictureButton = new TakePhotoButton { Text = "   Take A Picture Of Text   " };
+            var takePictureButton = new XamSpeakButton { Text = "   Take A Picture Of Text   " };
             var inverseBoolConverter = new InverseBoolConverter();
             var inverseBoolBinding = new Binding(nameof(ViewModel.IsActivityIndicatorDisplayed), BindingMode.Default, inverseBoolConverter, ViewModel.IsActivityIndicatorDisplayed);
             takePictureButton.SetBinding(IsVisibleProperty, inverseBoolBinding);

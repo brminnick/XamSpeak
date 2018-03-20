@@ -4,10 +4,6 @@ namespace XamSpeak
 {
     public class BaseContentPage<TViewModel> : ContentPage where TViewModel : BaseViewModel, new()
     {
-        #region Fields
-        TViewModel _viewModel;
-        #endregion
-
         #region Constructors
         public BaseContentPage()
         {
@@ -18,7 +14,7 @@ namespace XamSpeak
         #endregion
 
         #region Properties
-        protected TViewModel ViewModel => _viewModel ?? (_viewModel = new TViewModel());
+        protected TViewModel ViewModel { get; }
         #endregion
     }
 }

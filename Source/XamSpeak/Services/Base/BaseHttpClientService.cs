@@ -8,8 +8,6 @@ using System.Net.Http.Headers;
 
 using Newtonsoft.Json;
 
-using Xamarin.Forms;
-
 namespace XamSpeak
 {
     abstract class BaseHttpClientService
@@ -29,8 +27,7 @@ namespace XamSpeak
         #endregion
 
         #region Methods
-        protected static Task<T> GetDataObjectFromAPI<T>(string apiUrl) =>
-            GetDataObjectFromAPI<T, object>(apiUrl);
+        protected static Task<T> GetDataObjectFromAPI<T>(string apiUrl) => GetDataObjectFromAPI<T, object>(apiUrl);
 
         protected static async Task<TDataObject> GetDataObjectFromAPI<TDataObject, TPayloadData>(string apiUrl, TPayloadData data = default(TPayloadData))
         {
@@ -46,7 +43,7 @@ namespace XamSpeak
             using (var json = new JsonTextReader(reader))
             {
                 if (json == null)
-                    return default(TDataObject);
+                    return default;
 
                 return await Task.Run(() => Serializer.Deserialize<TDataObject>(json)).ConfigureAwait(false);
             }
@@ -54,22 +51,9 @@ namespace XamSpeak
 
         static HttpClient CreateHttpClient(TimeSpan timeout)
         {
-            HttpClient client;
-
-            switch (Device.RuntimePlatform)
-            {
-                case Device.iOS:
-                case Device.Android:
-                    client = new HttpClient();
-                    break;
-                default:
-                    client = new HttpClient(new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip });
-                    break;
-
-            }
-            client.Timeout = timeout;
+            HttpClient client = new HttpClient { Timeout = timeout };
             client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", CognitiveServicesConstants.BingSpellCheckAPIKey);
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", CognitiveServicesKeys.BingSpellCheckAPIKey);
 
             return client;
         }

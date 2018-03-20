@@ -76,10 +76,12 @@ namespace XamSpeak
             if (spellCheckedlistOfStringsFromOcrResults == null)
             {
                 OnSpellCheckFailed();
-                return;
+                SpokenTextLabelText = TextToSpeechServices.SpeakText(listOfStringsFromOcrResults);
             }
-
-            SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
+            else
+            {
+                SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
+            }
         }
 
         async Task<OcrResults> GetOcrResults(MediaFile mediaFile)

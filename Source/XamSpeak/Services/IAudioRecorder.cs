@@ -1,9 +1,11 @@
-﻿namespace XamSpeak
+﻿using System;
+namespace XamSpeak
 {
     public interface IAudioRecorder
     {
-        void BeginRecording();
-        byte[] FinishRecording();
+        void BeginRecording(Guid audioFileGuid);
+        byte[] FinishRecording(Guid audioFileGuid);
         int GetSpeakerRecognitionAudioFormat();
+        bool IsRecording(Guid audioFileGuid);
     }
 }

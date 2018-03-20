@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using AudioToolbox;
@@ -8,61 +9,88 @@ using Foundation;
 using Xamarin.Forms;
 
 using XamSpeak.iOS;
+using System.Linq;
 
 [assembly: Dependency(typeof(AudioRecorder_iOS))]
 namespace XamSpeak.iOS
 {
     public class AudioRecorder_iOS : IAudioRecorder
     {
+        #region Constant Fields
+        readonly Lazy<Dictionary<Guid, AVAudioRecorder>> _recorderDictionaryHolder = new Lazy<Dictionary<Guid, AVAudioRecorder>>();
+        readonly Lazy<Dictionary<Guid, string>> _audioFilePathDictionaryHolder = new Lazy<Dictionary<Guid, string>>();
+        readonly Lazy<Dictionary<Guid, bool>> _isRecordingDictionaryHolder = new Lazy<Dictionary<Guid, bool>>();
+        #endregion
+
         #region Fields
         bool _isInitialized;
-        string _audioFilePath;
-        AVAudioRecorder _recorder;
         NSError _error;
         NSUrl _url;
-        NSMutableDictionary _settings;
+        NSMutableDictionary _speakerRecognitionSettings;
+        #endregion
+
+        #region Properties
+        Dictionary<Guid, AVAudioRecorder> RecorderDictionary => _recorderDictionaryHolder.Value;
+        Dictionary<Guid, string> AudioFilePathDictionary => _audioFilePathDictionaryHolder.Value;
+        Dictionary<Guid, bool> IsRecordingDictionary => _isRecordingDictionaryHolder.Value;
         #endregion
 
         #region Methods
         public int GetSpeakerRecognitionAudioFormat() => (int)AudioFormatType.LinearPCM;
 
-        public void BeginRecording()
+        public bool IsRecording(Guid audioFileGuid)
+        {
+            var isRecordingKeyValuePair = IsRecordingDictionary.Where(x => x.Key.Equals(audioFileGuid))?.FirstOrDefault();
+            return isRecordingKeyValuePair?.Value ?? false;
+        }
+
+        public void BeginRecording(Guid audioFileGuid)
         {
             if (!_isInitialized)
                 Init();
 
             var currentDateTimeAsString = DateTimeOffset.Now.ToString("yyyyMMddHHmmss");
-            var fileName = string.Format($"AudioFile_{currentDateTimeAsString}.{SpeakerRecognitionConstants.SpeakerRecognitionFormat}");
-            _audioFilePath = Path.Combine(Path.GetTempPath(), fileName);
+            var fileName = string.Format($"{currentDateTimeAsString}.{SpeakerRecognitionConstants.SpeakerRecognitionFormat}");
+            var audioFilePath = Path.Combine(Path.GetTempPath(), fileName);
 
-            _url = NSUrl.FromFilename(_audioFilePath);
+            _url = NSUrl.FromFilename(audioFilePath);
 
-            _recorder = AVAudioRecorder.Create(_url, new AudioSettings(_settings), out _error);
-            _recorder.PrepareToRecord();
-            _recorder.Record();
+            var recorder = AVAudioRecorder.Create(_url, new AudioSettings(_speakerRecognitionSettings), out _error);
+
+            RecorderDictionary.Add(audioFileGuid, recorder);
+            AudioFilePathDictionary.Add(audioFileGuid, audioFilePath);
+
+            recorder.PrepareToRecord();
+            recorder.Record();
+
+            IsRecordingDictionary.Add(audioFileGuid, true);
         }
 
-        public byte[] FinishRecording()
+        public byte[] FinishRecording(Guid audioFileGuid)
         {
-            _recorder.Stop();
+            var recorder = RecorderDictionary[audioFileGuid];
+            var audioFilePath = AudioFilePathDictionary[audioFileGuid];
+
+            recorder.Stop();
+            IsRecordingDictionary.Add(audioFileGuid, false);
 
             byte[] audioFileAsByteArray;
 
-            using (var streamReader = new StreamReader(_audioFilePath))
+            using (var streamReader = new StreamReader(audioFilePath))
             using (var memstream = new MemoryStream())
             {
                 streamReader.BaseStream.CopyTo(memstream);
                 audioFileAsByteArray = memstream.ToArray();
             }
 
-            File.Delete(_audioFilePath);
+            File.Delete(audioFilePath);
 
             return audioFileAsByteArray;
         }
 
         void Init()
         {
-            _settings = new NSMutableDictionary
+            _speakerRecognitionSettings = new NSMutableDictionary
             {
                 { AVAudioSettings.AVSampleRateKey, NSNumber.FromFloat(SpeakerRecognitionConstants.SpeakerRecognitionSampleRate) },
                 { AVAudioSettings.AVFormatIDKey, NSNumber.FromInt32(SpeakerRecognitionConstants.SpeakerRecognitionAudioFormat) },

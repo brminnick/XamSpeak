@@ -47,7 +47,7 @@ namespace XamSpeak
 			catch (Exception e)
 			{
 				Report(e);
-				return null;
+				throw;
 			}
 			finally
 			{
@@ -121,7 +121,7 @@ namespace XamSpeak
 				catch (Exception e)
 				{
 					Report(e);
-					return null;
+					throw;
 				}
 				finally
 				{
@@ -184,7 +184,7 @@ namespace XamSpeak
 			catch (Exception e)
 			{
 				Report(e);
-				return default;
+				throw;
 			}
 		}
 

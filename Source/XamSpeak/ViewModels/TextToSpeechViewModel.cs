@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Net;
 using System.Windows.Input;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Microsoft.ProjectOxford.Vision.Contract;
+
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
 using Plugin.Media.Abstractions;
 
 using Xamarin.Forms;
+using System.Diagnostics;
 
 namespace XamSpeak
 {
@@ -62,41 +65,39 @@ namespace XamSpeak
             if (mediaFile == null)
                 return;
 
-            var ocrResults = await GetOcrResults(mediaFile);
-            if (ocrResults == null)
+            try
             {
-                OnOCRFailed();
-                return;
-            }
+				var ocrResults = await GetOcrResults(mediaFile);
+				var listOfStringsFromOcrResults = OCRServices.GetTextFromOcrResults(ocrResults);
 
-            var listOfStringsFromOcrResults = OCRServices.GetTextFromOcrResults(ocrResults);
+				var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults);
 
-            var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults);
+				if (spellCheckedlistOfStringsFromOcrResults == null)
+				{
+					OnSpellCheckFailed();
+					return;
+				}
 
-            if (spellCheckedlistOfStringsFromOcrResults == null)
-            {
-                OnSpellCheckFailed();
-                return;
-            }
-
-            SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
+				SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
+			}
+			catch (ComputerVisionErrorException e) when (e.Response.StatusCode.Equals(HttpStatusCode.Unauthorized))
+			{
+				Debug.WriteLine("Invalid API Key");
+				DebugHelpers.PrintException(e);
+			}
+			catch(Exception e)
+			{
+				DebugHelpers.PrintException(e);
+			}
         }
 
-        async Task<OcrResults> GetOcrResults(MediaFile mediaFile)
+        async Task<OcrResult> GetOcrResults(MediaFile mediaFile)
         {
             ActivateActivityIndicator("Reading Text");
 
             try
             {
                 return await OCRServices.GetOcrResultsFromMediaFile(mediaFile);
-            }
-            catch (Exception e)
-            {
-                DebugHelpers.PrintException(e);
-
-                OnInternetConnectionUnavailable();
-
-                return null;
             }
             finally
             {

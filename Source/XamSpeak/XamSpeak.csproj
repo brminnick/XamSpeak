@@ -21,5 +21,10 @@
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
         <PackageReference Include="Xamarin.Forms" Version="2.5.1.444934" />
         <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="1.0.2-preview" />
+        <PackageReference Include="Microsoft.Azure.CognitiveServices.Language.SpellCheck" Version="2.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Services\Base\BaseHttpClientService.cs" />
+      <Compile Remove="Models\BingSpellCheckModels.cs" />
     </ItemGroup>
 </Project>

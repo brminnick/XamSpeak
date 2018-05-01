@@ -72,18 +72,7 @@ namespace XamSpeak
 
 				var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults);
 
-				if (spellCheckedlistOfStringsFromOcrResults == null)
-				{
-					OnSpellCheckFailed();
-					return;
-				}
-
 				SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
-			}
-			catch (ComputerVisionErrorException e) when (e.Response.StatusCode.Equals(HttpStatusCode.Unauthorized))
-			{
-				Debug.WriteLine("Invalid API Key");
-				DebugHelpers.PrintException(e);
 			}
 			catch(Exception e)
 			{
@@ -112,10 +101,6 @@ namespace XamSpeak
             try
             {
                 return await SpellCheckServices.GetSpellCheckedStringList(stringList);
-            }
-            catch (Exception)
-            {
-                return null;
             }
             finally
             {

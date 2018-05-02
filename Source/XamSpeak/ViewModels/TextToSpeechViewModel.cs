@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Net;
+using System.Net.Http;
 using System.Windows.Input;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -9,11 +9,10 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Plugin.Media.Abstractions;
 
 using Xamarin.Forms;
-using System.Diagnostics;
 
 namespace XamSpeak
 {
-    public class TextToSpeechViewModel : BaseViewModel
+	public class TextToSpeechViewModel : BaseViewModel
     {
         #region Fields
         int _isInternetConnectionInUseCount;
@@ -30,7 +29,7 @@ namespace XamSpeak
 
         #region Properties
         public ICommand TakePictureButtonCommand => _takePictureButtonCommand ??
-            (_takePictureButtonCommand = new Command(async () => await ExecuteTakePictureButtonCommand()));
+            (_takePictureButtonCommand = new Command(async () => await ExecuteTakePictureButtonCommand().ConfigureAwait(false)));
 
         public string SpokenTextLabelText
         {
@@ -61,18 +60,23 @@ namespace XamSpeak
 
         async Task ExecuteNewPictureWorkflow()
         {
-            var mediaFile = await MediaServices.GetMediaFileFromCamera(Guid.NewGuid().ToString());
-            if (mediaFile == null)
+            var mediaFile = await MediaServices.GetMediaFileFromCamera(Guid.NewGuid().ToString()).ConfigureAwait(false);
+            if (mediaFile is null)
                 return;
 
             try
             {
-				var ocrResults = await GetOcrResults(mediaFile);
+				var ocrResults = await GetOcrResults(mediaFile).ConfigureAwait(false);
 				var listOfStringsFromOcrResults = OCRServices.GetTextFromOcrResults(ocrResults);
 
-				var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults);
+				var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults).ConfigureAwait(false);
 
 				SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
+			}
+            catch(HttpRequestException e)
+			{
+				DebugHelpers.PrintException(e);
+				OnInternetConnectionUnavailable();
 			}
 			catch(Exception e)
 			{
@@ -86,7 +90,7 @@ namespace XamSpeak
 
             try
             {
-                return await OCRServices.GetOcrResultsFromMediaFile(mediaFile);
+                return await OCRServices.GetOcrResultsFromMediaFile(mediaFile).ConfigureAwait(false);
             }
             finally
             {
@@ -100,7 +104,7 @@ namespace XamSpeak
 
             try
             {
-                return await SpellCheckServices.GetSpellCheckedStringList(stringList);
+                return await SpellCheckServices.GetSpellCheckedStringList(stringList).ConfigureAwait(false);
             }
             finally
             {
@@ -119,7 +123,7 @@ namespace XamSpeak
         {
             IsInternetConnectionActive = --_isInternetConnectionInUseCount != 0;
             IsActivityIndicatorDisplayed = false;
-            ActivityIndicatorLabelText = default(string);
+            ActivityIndicatorLabelText = default;
         }
 
         void OnSpellCheckFailed() =>

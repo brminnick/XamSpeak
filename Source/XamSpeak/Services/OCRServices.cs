@@ -34,9 +34,7 @@ namespace XamSpeak
 		{
 			try
 			{
-				var ocrResult = await ComputerVisionApiClient.RecognizePrintedTextInStreamAsync(true, ConverterHelpers.ConvertMediaFileToStream(mediaFile, false)).ConfigureAwait(false);
-
-				return ocrResult;
+				return await ComputerVisionApiClient.RecognizePrintedTextInStreamAsync(true, ConverterHelpers.ConvertMediaFileToStream(mediaFile, false)).ConfigureAwait(false);
 			}
 			catch (ComputerVisionErrorException e) when (e.Response.StatusCode.Equals(HttpStatusCode.Unauthorized))
 			{
@@ -85,7 +83,7 @@ namespace XamSpeak
 
 		static List<string> CreateStringFromOcrModelList(List<OcrTextLocationModel> ocrModelList)
 		{
-			if (ocrModelList == null || ocrModelList.Count <= 0)
+			if (ocrModelList is null || ocrModelList.Count <= 0)
 				return new List<string>();
 
 			var stringList = new List<string>();

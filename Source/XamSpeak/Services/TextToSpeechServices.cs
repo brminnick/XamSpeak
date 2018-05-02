@@ -12,7 +12,7 @@ namespace XamSpeak
 		static Command<string> _speakTextCommand;
 
 		static Command<string> SpeakTextCommand => _speakTextCommand ??
-			(_speakTextCommand = new Command<string>(async text => await CrossTextToSpeech.Current.Speak(text)));
+			(_speakTextCommand = new Command<string>(async text => await CrossTextToSpeech.Current.Speak(text).ConfigureAwait(false)));
 
 		public static string SpeakText(List<string> textList)
 		{

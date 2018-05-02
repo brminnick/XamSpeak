@@ -88,9 +88,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
-    <Reference Include="Microsoft.ProjectOxford.Vision">
-      <HintPath>..\packages\Microsoft.ProjectOxford.Vision.1.0.393\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Microsoft.ProjectOxford.Vision.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
@@ -129,6 +126,18 @@
     </Reference>
     <Reference Include="Xamarin.Forms.Xaml">
       <HintPath>..\packages\Xamarin.Forms.2.5.1.444934\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision">
+      <HintPath>..\packages\Microsoft.Azure.CognitiveServices.Vision.ComputerVision.1.0.2-preview\lib\netstandard1.4\Microsoft.Azure.CognitiveServices.Vision.ComputerVision.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Rest.ClientRuntime">
+      <HintPath>..\packages\Microsoft.Rest.ClientRuntime.2.3.11\lib\netstandard1.4\Microsoft.Rest.ClientRuntime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Rest.ClientRuntime.Azure">
+      <HintPath>..\packages\Microsoft.Rest.ClientRuntime.Azure.3.3.12\lib\netstandard1.4\Microsoft.Rest.ClientRuntime.Azure.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.CognitiveServices.Language.SpellCheck">
+      <HintPath>..\packages\Microsoft.Azure.CognitiveServices.Language.SpellCheck.2.0.0\lib\netstandard1.4\Microsoft.Azure.CognitiveServices.Language.SpellCheck.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

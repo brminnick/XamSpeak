@@ -62,17 +62,17 @@ namespace XamSpeak
                 mediaFileTCS.SetResult(file);
             });
 
-            return await mediaFileTCS.Task;
+            return await mediaFileTCS.Task.ConfigureAwait(false);
         }
 
         static async Task<bool> ArePermissionsGranted()
         {
-            var cameraStatus = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Camera);
-            var storageStatus = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Storage);
+            var cameraStatus = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Camera).ConfigureAwait(false);
+            var storageStatus = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Storage).ConfigureAwait(false);
 
             if (cameraStatus != PermissionStatus.Granted || storageStatus != PermissionStatus.Granted)
             {
-                var results = await CrossPermissions.Current.RequestPermissionsAsync(new[] { Permission.Camera, Permission.Storage });
+                var results = await CrossPermissions.Current.RequestPermissionsAsync(new[] { Permission.Camera, Permission.Storage }).ConfigureAwait(false);
                 cameraStatus = results[Permission.Camera];
                 storageStatus = results[Permission.Storage];
             }

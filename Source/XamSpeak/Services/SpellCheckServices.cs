@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Net;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -65,17 +65,24 @@ namespace XamSpeak
 
 				return new List<SpellingFlaggedToken>(spellCheckModel.FlaggedTokens);
 			}
-			catch (HttpRequestException e) when (e.Message.Contains("401"))
+			catch (ErrorResponseException e) when (e.Response.StatusCode.Equals(HttpStatusCode.Unauthorized))
 			{
 				DebugHelpers.PrintException(e);
 				OnInvalidBingSpellCheckAPIKey();
             
 				throw;
 			}
-			catch (HttpRequestException e) when (e.Message.Contains("429"))
+			catch (ErrorResponseException e) when (e.Response.StatusCode.Equals(429))
 			{
 				DebugHelpers.PrintException(e);
 				OnError429_TooManySpellCheckAPIRequests();
+
+				throw;
+			}
+            catch(ArgumentNullException e)
+			{
+				DebugHelpers.PrintException(e);
+                OnInvalidBingSpellCheckAPIKey();
 
 				throw;
 			}

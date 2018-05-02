@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Windows.Input;
 using System.Threading.Tasks;
@@ -73,7 +74,8 @@ namespace XamSpeak
 
 				SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
 			}
-            catch(HttpRequestException e)
+			catch(HttpRequestException e) when (((e?.InnerException as WebException)?.Status.Equals(WebExceptionStatus.ConnectFailure) ?? false)
+			                                    || ((e?.InnerException as WebException)?.Status.Equals(WebExceptionStatus.NameResolutionFailure) ?? false))
 			{
 				DebugHelpers.PrintException(e);
 				OnInternetConnectionUnavailable();

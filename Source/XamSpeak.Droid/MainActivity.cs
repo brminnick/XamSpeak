@@ -3,6 +3,7 @@ using Android.App;
 using Android.Content.PM;
 
 using Plugin.Permissions;
+using Plugin.CurrentActivity;
 
 namespace XamSpeak.Droid
 {
@@ -22,6 +23,8 @@ namespace XamSpeak.Droid
 			ToolbarResource = Resource.Layout.Toolbar;
 
 			base.OnCreate(savedInstanceState);
+
+            CrossCurrentActivity.Current.Init(this, savedInstanceState);
 
 			global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
 

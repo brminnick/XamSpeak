@@ -7,7 +7,6 @@
     <ItemGroup>
         <Folder Include="Constants\" />
         <Folder Include="Helpers\" />
-        <Folder Include="Models\" />
         <Folder Include="Pages\" />
         <Folder Include="ViewModels\" />
         <Folder Include="Views\" />
@@ -15,16 +14,17 @@
         <Folder Include="Services\Base\" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Xam.Plugin.Media" Version="3.1.3" />
-        <PackageReference Include="Xam.Plugins.TextToSpeech" Version="3.3.2" />
         <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
-        <PackageReference Include="Xamarin.Forms" Version="2.5.1.444934" />
-        <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="1.0.2-preview" />
         <PackageReference Include="Microsoft.Azure.CognitiveServices.Language.SpellCheck" Version="2.0.0" />
+        <PackageReference Include="Xamarin.Essentials" Version="0.7.0.17-preview" />
+        <PackageReference Include="Xamarin.Forms" Version="3.1.0.583944" />
+        <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="2.0.0" />
+        <PackageReference Include="Xam.Plugin.Media" Version="4.0.1.1" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
     </ItemGroup>
     <ItemGroup>
       <Compile Remove="Services\Base\BaseHttpClientService.cs" />
       <Compile Remove="Models\BingSpellCheckModels.cs" />
+      <Compile Remove="Models\XamSpeakOcrResult.cs" />
     </ItemGroup>
 </Project>

@@ -1,9 +1,8 @@
 ﻿using System.Text;
 using System.Collections.Generic;
 
-using Plugin.TextToSpeech;
-
 using Xamarin.Forms;
+using Xamarin.Essentials;
 
 namespace XamSpeak
 {
@@ -12,7 +11,7 @@ namespace XamSpeak
 		static Command<string> _speakTextCommand;
 
 		static Command<string> SpeakTextCommand => _speakTextCommand ??
-			(_speakTextCommand = new Command<string>(async text => await CrossTextToSpeech.Current.Speak(text).ConfigureAwait(false)));
+			(_speakTextCommand = new Command<string>(async text => await TextToSpeech.SpeakAsync(text).ConfigureAwait(false)));
 
 		public static string SpeakText(List<string> textList)
 		{

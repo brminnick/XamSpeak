@@ -44,18 +44,6 @@ namespace XamSpeak
 
 				throw;
 			}
-            catch (Microsoft.Rest.SerializationException e)
-			{
-				var xamSpeakOcrResult = JsonConvert.DeserializeObject<XamSpeakOcrResult>(e.Content);
-
-				return new OcrResult
-				{
-					Language = default,
-					Orientation = xamSpeakOcrResult.Orientation,
-					Regions = xamSpeakOcrResult.Regions,
-                    TextAngle = xamSpeakOcrResult.TextAngle
-				};
-			}
 		}
 
 		public static List<string> GetTextFromOcrResults(OcrResult ocrResults)

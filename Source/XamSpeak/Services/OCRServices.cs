@@ -16,9 +16,9 @@ namespace XamSpeak
 {
 	public static class OCRServices
 	{
-		#region Constant Fields
-		readonly static Lazy<ComputerVisionAPI> _computerVisionApiClientHolder =
-			new Lazy<ComputerVisionAPI>(() => new ComputerVisionAPI(new ApiKeyServiceClientCredentials(CognitiveServicesConstants.ComputerVisionAPIKey)) { AzureRegion = AzureRegions.Westus });
+        #region Constant Fields
+        readonly static Lazy<ComputerVisionAPI> _computerVisionApiClientHolder =
+            new Lazy<ComputerVisionAPI>(() => new ComputerVisionAPI(new ApiKeyServiceClientCredentials(CognitiveServicesConstants.ComputerVisionAPIKey)));
 		#endregion
 
 		#region Events 

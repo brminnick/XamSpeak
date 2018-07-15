@@ -13,8 +13,8 @@ namespace XamSpeak
 	{
 		#region Constant Fields
 		const double _minimumConfidenceScore = 0.80;
-		static readonly Lazy<SpellCheckAPI> _spellCheckApiClient =
-			new Lazy<SpellCheckAPI>(() => new SpellCheckAPI(new ApiKeyServiceClientCredentials(CognitiveServicesConstants.BingSpellCheckAPIKey)));
+        static readonly Lazy<SpellCheckClient> _spellCheckApiClient =
+            new Lazy<SpellCheckClient>(() => new SpellCheckClient(new ApiKeyServiceClientCredentials(CognitiveServicesConstants.BingSpellCheckAPIKey)));
 		#endregion
 
 		#region Events
@@ -23,7 +23,7 @@ namespace XamSpeak
 		#endregion
 
 		#region Properties
-		static SpellCheckAPI SpellCheckApiClient => _spellCheckApiClient.Value;
+		static SpellCheckClient SpellCheckApiClient => _spellCheckApiClient.Value;
 		#endregion
 
 		#region Methods

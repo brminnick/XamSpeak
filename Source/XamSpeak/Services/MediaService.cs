@@ -70,7 +70,7 @@ namespace XamSpeak
                     Name = photoName,
                     DefaultCamera = CameraDevice.Rear,
                 });
-            });
+            }).ConfigureAwait(false);
         }
 
         static async Task<bool> ArePermissionsGranted()

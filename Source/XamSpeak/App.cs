@@ -1,16 +1,21 @@
-﻿using Xamarin.Forms;
+﻿using Xamarin.Forms.PlatformConfiguration;
+using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
 
 namespace XamSpeak
 {
-	public class App : Application
+	public class App : Xamarin.Forms.Application
 	{
 		public App()
 		{
-			MainPage = new NavigationPage(new TextToSpeechPage())
+			var navigationPage = new Xamarin.Forms.NavigationPage(new TextToSpeechPage())
 			{
 				BarTextColor = ColorConstants.NavigationBarTextColor,
                 BarBackgroundColor = ColorConstants.NavigationBarBackgroundColor
 			};
+
+            navigationPage.On<iOS>().SetPrefersLargeTitles(true);
+
+            MainPage = navigationPage;
 		}
 	}
 }

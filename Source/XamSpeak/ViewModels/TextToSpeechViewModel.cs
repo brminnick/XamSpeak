@@ -1,20 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Windows.Input;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-
+using System.Windows.Input;
+using AsyncAwaitBestPractices;
+using AsyncAwaitBestPractices.MVVM;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-
 using Plugin.Media.Abstractions;
-
-using Xamarin.Forms;
 
 namespace XamSpeak
 {
-	public class TextToSpeechViewModel : BaseViewModel
+    public class TextToSpeechViewModel : BaseViewModel
     {
+        #region Constant Fields
+        readonly WeakEventManager _ocrFailedEventManager = new WeakEventManager();
+        readonly WeakEventManager _spellCheckFailedEventManager = new WeakEventManager();
+        readonly WeakEventManager _internetConnectionUnavailableEventManager = new WeakEventManager();
+        #endregion
+
         #region Fields
         int _isInternetConnectionInUseCount;
         string _spokenTextLabelText, _activityIndicatorLabelText;
@@ -23,14 +27,28 @@ namespace XamSpeak
         #endregion
 
         #region Events
-        public event EventHandler OCRFailed;
-        public event EventHandler SpellCheckFailed;
-        public event EventHandler InternetConnectionUnavailable;
+        public event EventHandler OCRFailed
+        {
+            add => _ocrFailedEventManager.AddEventHandler(value);
+            remove => _ocrFailedEventManager.RemoveEventHandler(value);
+        }
+
+        public event EventHandler SpellCheckFailed
+        {
+            add => _spellCheckFailedEventManager.AddEventHandler(value);
+            remove => _spellCheckFailedEventManager.RemoveEventHandler(value);
+        }
+
+        public event EventHandler InternetConnectionUnavailable
+        {
+            add => _internetConnectionUnavailableEventManager.AddEventHandler(value);
+            remove => _internetConnectionUnavailableEventManager.RemoveEventHandler(value);
+        }
         #endregion
 
         #region Properties
         public ICommand TakePictureButtonCommand => _takePictureButtonCommand ??
-            (_takePictureButtonCommand = new Command(async () => await ExecuteTakePictureButtonCommand().ConfigureAwait(false)));
+            (_takePictureButtonCommand = new AsyncCommand(ExecuteTakePictureButtonCommand, continueOnCapturedContext: false));
 
         public string SpokenTextLabelText
         {
@@ -67,23 +85,23 @@ namespace XamSpeak
 
             try
             {
-				var ocrResults = await GetOcrResults(mediaFile).ConfigureAwait(false);
-				var listOfStringsFromOcrResults = OCRServices.GetTextFromOcrResults(ocrResults);
+                var ocrResults = await GetOcrResults(mediaFile).ConfigureAwait(false);
+                var listOfStringsFromOcrResults = OCRServices.GetTextFromOcrResults(ocrResults);
 
-				var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults).ConfigureAwait(false);
+                var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults).ConfigureAwait(false);
 
-				SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
-			}
-			catch(HttpRequestException e) when (((e?.InnerException as WebException)?.Status.Equals(WebExceptionStatus.ConnectFailure) ?? false)
-			                                    || ((e?.InnerException as WebException)?.Status.Equals(WebExceptionStatus.NameResolutionFailure) ?? false))
-			{
-				DebugHelpers.PrintException(e);
-				OnInternetConnectionUnavailable();
-			}
-			catch(Exception e)
-			{
-				DebugHelpers.PrintException(e);
-			}
+                SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
+            }
+            catch (HttpRequestException e) when (((e?.InnerException as WebException)?.Status.Equals(WebExceptionStatus.ConnectFailure) ?? false)
+                                                || ((e?.InnerException as WebException)?.Status.Equals(WebExceptionStatus.NameResolutionFailure) ?? false))
+            {
+                DebugHelpers.PrintException(e);
+                OnInternetConnectionUnavailable();
+            }
+            catch (Exception e)
+            {
+                DebugHelpers.PrintException(e);
+            }
         }
 
         async Task<OcrResult> GetOcrResults(MediaFile mediaFile)
@@ -129,13 +147,13 @@ namespace XamSpeak
         }
 
         void OnSpellCheckFailed() =>
-            SpellCheckFailed?.Invoke(this, EventArgs.Empty);
+            _spellCheckFailedEventManager.HandleEvent(this, EventArgs.Empty, nameof(SpellCheckFailed));
 
         void OnInternetConnectionUnavailable() =>
-            InternetConnectionUnavailable?.Invoke(this, EventArgs.Empty);
+            _internetConnectionUnavailableEventManager.HandleEvent(this, EventArgs.Empty, nameof(InternetConnectionUnavailable));
 
         void OnOCRFailed() =>
-            OCRFailed?.Invoke(this, EventArgs.Empty);
+            _ocrFailedEventManager.HandleEvent(this, EventArgs.Empty, nameof(OCRFailed));
         #endregion
     }
 }

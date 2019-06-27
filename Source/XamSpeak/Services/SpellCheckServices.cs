@@ -3,7 +3,7 @@ using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-
+using AsyncAwaitBestPractices;
 using Microsoft.Azure.CognitiveServices.Language.SpellCheck;
 using Microsoft.Azure.CognitiveServices.Language.SpellCheck.Models;
 
@@ -13,13 +13,26 @@ namespace XamSpeak
     {
         #region Constant Fields
         const double _minimumConfidenceScore = 0.80;
+
+        static readonly WeakEventManager _invalidBingSpellCheckAPIKeyEventManager = new WeakEventManager();
+        static readonly WeakEventManager _error429_TooManySpellCheckAPIRequests = new WeakEventManager();
+
         static readonly Lazy<SpellCheckClient> _spellCheckApiClient =
             new Lazy<SpellCheckClient>(() => new SpellCheckClient(new ApiKeyServiceClientCredentials(CognitiveServicesConstants.BingSpellCheckAPIKey)));
         #endregion
 
         #region Events
-        public static event EventHandler InvalidBingSpellCheckAPIKey;
-        public static event EventHandler Error429_TooManySpellCheckAPIRequests;
+        public static event EventHandler InvalidBingSpellCheckAPIKey
+        {
+            add => _invalidBingSpellCheckAPIKeyEventManager.AddEventHandler(value);
+            remove => _invalidBingSpellCheckAPIKeyEventManager.RemoveEventHandler(value);
+        }
+
+        public static event EventHandler Error429_TooManySpellCheckAPIRequests
+        {
+            add => _error429_TooManySpellCheckAPIRequests.AddEventHandler(value);
+            remove => _error429_TooManySpellCheckAPIRequests.RemoveEventHandler(value);
+        }
         #endregion
 
         #region Properties
@@ -89,10 +102,10 @@ namespace XamSpeak
         }
 
         static void OnInvalidBingSpellCheckAPIKey() =>
-            InvalidBingSpellCheckAPIKey?.Invoke(null, EventArgs.Empty);
+            _invalidBingSpellCheckAPIKeyEventManager.HandleEvent(null, EventArgs.Empty, nameof(InvalidBingSpellCheckAPIKey));
 
         static void OnError429_TooManySpellCheckAPIRequests() =>
-            Error429_TooManySpellCheckAPIRequests?.Invoke(null, EventArgs.Empty);
+            _error429_TooManySpellCheckAPIRequests.HandleEvent(null, EventArgs.Empty, nameof(Error429_TooManySpellCheckAPIRequests));
         #endregion
     }
 }

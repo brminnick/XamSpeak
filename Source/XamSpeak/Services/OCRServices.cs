@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Net;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-
+using AsyncAwaitBestPractices;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-
 using Plugin.Media.Abstractions;
 
 namespace XamSpeak
@@ -15,12 +14,18 @@ namespace XamSpeak
     public static class OCRServices
     {
         #region Constant Fields
+        readonly static WeakEventManager _invalidComputerVisionAPIKeyEventManager = new WeakEventManager();
+
         readonly static Lazy<ComputerVisionClient> _computerVisionApiClientHolder =
             new Lazy<ComputerVisionClient>(() => new ComputerVisionClient(new ApiKeyServiceClientCredentials(CognitiveServicesConstants.ComputerVisionAPIKey)) { Endpoint = CognitiveServicesConstants.ComputerVisionBaseUrl });
         #endregion
 
         #region Events 
-        public static event EventHandler InvalidComputerVisionAPIKey;
+        public static event EventHandler InvalidComputerVisionAPIKey
+        {
+            add => _invalidComputerVisionAPIKeyEventManager.AddEventHandler(value);
+            remove => _invalidComputerVisionAPIKeyEventManager.RemoveEventHandler(value);
+        }
         #endregion
 
         #region Properties
@@ -121,7 +126,7 @@ namespace XamSpeak
         }
 
         static void OnInvalidComputerVisionAPIKey() =>
-            InvalidComputerVisionAPIKey?.Invoke(null, EventArgs.Empty);
+            _invalidComputerVisionAPIKeyEventManager.HandleEvent(null, EventArgs.Empty, nameof(InvalidComputerVisionAPIKey));
         #endregion
 
         #region Classes

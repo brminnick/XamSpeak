@@ -1,33 +1,27 @@
-﻿using System.Text;
-using System.Collections.Generic;
-
-using Xamarin.Forms;
+﻿using System.Collections.Generic;
+using System.Text;
+using AsyncAwaitBestPractices;
 using Xamarin.Essentials;
 
 namespace XamSpeak
 {
-	public static class TextToSpeechServices
-	{
-		static Command<string> _speakTextCommand;
+    public static class TextToSpeechServices
+    {
+        public static string SpeakText(List<string> textList)
+        {
+            var stringBuilder = new StringBuilder();
 
-		static Command<string> SpeakTextCommand => _speakTextCommand ??
-			(_speakTextCommand = new Command<string>(async text => await TextToSpeech.SpeakAsync(text).ConfigureAwait(false)));
+            foreach (var lineOfText in textList)
+            {
+                stringBuilder.AppendLine(lineOfText);
 
-		public static string SpeakText(List<string> textList)
-		{
-			var stringBuilder = new StringBuilder();
+                TextToSpeech.SpeakAsync(lineOfText).SafeFireAndForget(false);
+            }
 
-			foreach (var lineOfText in textList)
-			{
-				stringBuilder.AppendLine(lineOfText);
+            if (stringBuilder.Length > 1)
+                stringBuilder.Remove(stringBuilder.Length - 1, 1);
 
-				SpeakTextCommand?.Execute(lineOfText);
-			}
-
-			if (stringBuilder.Length > 1)
-				stringBuilder.Remove(stringBuilder.Length - 1, 1);
-			
-			return stringBuilder.ToString();
-		}
-	}
+            return stringBuilder.ToString();
+        }
+    }
 }

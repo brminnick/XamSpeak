@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-
+using AsyncAwaitBestPractices;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
 
@@ -14,9 +14,23 @@ namespace XamSpeak
 {
     public static class MediaServices
     {
+        #region Constant Fields
+        readonly static WeakEventManager _noCameraDetectedEventManager = new WeakEventManager();
+        readonly static WeakEventManager _permissionsDeniedEventManager = new WeakEventManager();
+        #endregion
+
         #region Events 
-        public static event EventHandler NoCameraDetected;
-        public static event EventHandler PermissionsDenied;
+        public static event EventHandler NoCameraDetected
+        {
+            add => _noCameraDetectedEventManager.AddEventHandler(value);
+            remove => _noCameraDetectedEventManager.RemoveEventHandler(value);
+        }
+
+        public static event EventHandler PermissionsDenied
+        {
+            add => _permissionsDeniedEventManager.AddEventHandler(value);
+            remove => _permissionsDeniedEventManager.RemoveEventHandler(value);
+        }
         #endregion
 
         #region Methods
@@ -47,22 +61,16 @@ namespace XamSpeak
                 return null;
             }
 
-            var mediaFileTCS = new TaskCompletionSource<MediaFile>();
-
-            Device.BeginInvokeOnMainThread(async () =>
+            return await Device.InvokeOnMainThreadAsync(() =>
             {
-                var file = await CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
+                return CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
                 {
                     PhotoSize = PhotoSize.Small,
                     Directory = "XamSpeak",
                     Name = photoName,
                     DefaultCamera = CameraDevice.Rear,
                 });
-
-                mediaFileTCS.SetResult(file);
             });
-
-            return await mediaFileTCS.Task.ConfigureAwait(false);
         }
 
         static async Task<bool> ArePermissionsGranted()
@@ -83,8 +91,8 @@ namespace XamSpeak
             return false;
         }
 
-        static void OnNoCameraDetected() => NoCameraDetected?.Invoke(null, EventArgs.Empty);
-        static void OnPermissionsDenied() => PermissionsDenied?.Invoke(null, EventArgs.Empty);
+        static void OnNoCameraDetected() => _noCameraDetectedEventManager.HandleEvent(null, EventArgs.Empty, nameof(NoCameraDetected));
+        static void OnPermissionsDenied() => _permissionsDeniedEventManager.HandleEvent(null, EventArgs.Empty, nameof(PermissionsDenied));
         #endregion
     }
 }

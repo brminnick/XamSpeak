@@ -9,10 +9,11 @@
         <RootNamespace>XamSpeak.iOS</RootNamespace>
         <AssemblyName>XamSpeak.iOS</AssemblyName>
         <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+        <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
         <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
+        <DebugType>portable</DebugType>
         <Optimize>false</Optimize>
         <OutputPath>bin\iPhoneSimulator\Debug</OutputPath>
         <DefineConstants>DEBUG;ENABLE_TEST_CLOUD;</DefineConstants>
@@ -29,6 +30,7 @@
         <MtouchArch>x86_64</MtouchArch>
         <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
         <PlatformTarget>x86</PlatformTarget>
+        <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
         <DebugType>pdbonly</DebugType>
@@ -40,7 +42,7 @@
         <MtouchFloat32>true</MtouchFloat32>
         <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
         <MtouchLink>SdkOnly</MtouchLink>
-        <MtouchArch>ARMv7, ARM64</MtouchArch>
+        <MtouchArch>ARM64</MtouchArch>
         <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
         <PlatformTarget>x86</PlatformTarget>
         <MtouchUseLlvm>true</MtouchUseLlvm>
@@ -60,6 +62,8 @@
         <MtouchArch>x86_64</MtouchArch>
         <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
         <PlatformTarget>x86</PlatformTarget>
+        <MtouchUseLlvm>true</MtouchUseLlvm>
+        <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
         <DebugSymbols>true</DebugSymbols>
@@ -78,9 +82,10 @@
         <MtouchFloat32>true</MtouchFloat32>
         <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
         <MtouchLink>SdkOnly</MtouchLink>
-        <MtouchArch>ARMv7, ARM64</MtouchArch>
+        <MtouchArch>ARM64</MtouchArch>
         <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
         <PlatformTarget>x86</PlatformTarget>
+        <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System" />
@@ -94,12 +99,12 @@
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
         <PackageReference Include="Xam.Plugin.Media" Version="4.0.1.5" />
-        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
         <PackageReference Include="Microsoft.Azure.CognitiveServices.Language.SpellCheck" Version="4.0.0" />
         <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="5.0.0" />
-        <PackageReference Include="Xamarin.Essentials" Version="1.1.0" />
-        <PackageReference Include="Xamarin.Forms" Version="4.1.0.496342-pre2" />
-        <PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="3.0.0-pre1" />
+        <PackageReference Include="Xamarin.Essentials" Version="1.2.0" />
+        <PackageReference Include="Xamarin.Forms" Version="4.2.0.618605-pre2" />
+        <PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="3.0.0-pre4" />
     </ItemGroup>
     <ItemGroup>
         <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
@@ -115,7 +120,6 @@
     <ItemGroup>
         <None Include="Info.plist" />
         <None Include="Entitlements.plist" />
-        <None Include="packages.config" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Main.cs" />

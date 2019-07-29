@@ -8,8 +8,8 @@ namespace XamSpeak
         public const string ContentPageBackgroundColorHex = "A4EBE2";
         public const string NavigationBarTextHex = "FFFFFF";
 
-        public static readonly Color NavigationBarTextColor = Color.FromHex(NavigationBarTextHex);
-        public static readonly Color NavigationBarBackgroundColor = Color.FromHex(NavigationBarBackgroundHex);
-        public static readonly Color ContentPageBackgroundColor = Color.FromHex(ContentPageBackgroundColorHex);
+        public static Color NavigationBarTextColor { get; } = Color.FromHex(NavigationBarTextHex);
+        public static Color NavigationBarBackgroundColor { get; } = Color.FromHex(NavigationBarBackgroundHex);
+        public static Color ContentPageBackgroundColor { get; } = Color.FromHex(ContentPageBackgroundColorHex);
     }
 }

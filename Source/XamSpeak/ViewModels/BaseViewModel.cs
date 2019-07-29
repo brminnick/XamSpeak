@@ -6,7 +6,7 @@ using AsyncAwaitBestPractices;
 
 namespace XamSpeak
 {
-    public class BaseViewModel : INotifyPropertyChanged
+    abstract class BaseViewModel : INotifyPropertyChanged
     {
         #region Constant Fields
         readonly WeakEventManager _propertyChangedWeakEventManager = new WeakEventManager();
@@ -33,7 +33,7 @@ namespace XamSpeak
         #endregion
 
         #region Methods
-        protected void SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyname = "", Action onChanged = null)
+        protected void SetProperty<T>(ref T backingStore, in T value, in Action onChanged = null, [CallerMemberName] in string propertyname = "")
         {
             if (EqualityComparer<T>.Default.Equals(backingStore, value))
                 return;
@@ -45,7 +45,7 @@ namespace XamSpeak
             OnPropertyChanged(propertyname);
         }
 
-        void OnPropertyChanged([CallerMemberName] string name = "") =>
+        protected void OnPropertyChanged([CallerMemberName] in string name = "") =>
             _propertyChangedWeakEventManager.HandleEvent(this, new PropertyChangedEventArgs(name), nameof(INotifyPropertyChanged.PropertyChanged));
         #endregion
     }

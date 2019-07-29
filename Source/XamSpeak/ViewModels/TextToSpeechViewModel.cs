@@ -11,7 +11,7 @@ using Plugin.Media.Abstractions;
 
 namespace XamSpeak
 {
-    public class TextToSpeechViewModel : BaseViewModel
+    class TextToSpeechViewModel : BaseViewModel
     {
         #region Constant Fields
         readonly WeakEventManager _ocrFailedEventManager = new WeakEventManager();
@@ -48,7 +48,9 @@ namespace XamSpeak
 
         #region Properties
         public ICommand TakePictureButtonCommand => _takePictureButtonCommand ??
-            (_takePictureButtonCommand = new AsyncCommand(ExecuteTakePictureButtonCommand, continueOnCapturedContext: false));
+            (_takePictureButtonCommand = new AsyncCommand(ExecuteTakePictureButtonCommand));
+
+        public bool IsTakePictureButtonVisible => !IsActivityIndicatorDisplayed;
 
         public string SpokenTextLabelText
         {
@@ -65,7 +67,7 @@ namespace XamSpeak
         public bool IsActivityIndicatorDisplayed
         {
             get => _isActivityIndicatorDisplayed;
-            set => SetProperty(ref _isActivityIndicatorDisplayed, value);
+            set => SetProperty(ref _isActivityIndicatorDisplayed, value, () => OnPropertyChanged(nameof(IsTakePictureButtonVisible)));
         }
         #endregion
 

@@ -85,7 +85,7 @@ namespace XamSpeak
                 storageStatus = results[Permission.Storage];
             }
 
-            if (cameraStatus == PermissionStatus.Granted && storageStatus == PermissionStatus.Granted)
+            if (cameraStatus is PermissionStatus.Granted && storageStatus is PermissionStatus.Granted)
                 return true;
 
             return false;

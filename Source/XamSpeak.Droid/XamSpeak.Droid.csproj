@@ -15,18 +15,21 @@
         <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
         <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
         <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+        <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
+        <DebugType>portable</DebugType>
         <Optimize>false</Optimize>
         <OutputPath>bin\Debug</OutputPath>
         <DefineConstants>DEBUG;</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <AndroidLinkMode>None</AndroidLinkMode>
         <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
         <AndroidTlsProvider>btls</AndroidTlsProvider>
+        <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+        <AndroidUseAapt2>true</AndroidUseAapt2>
+        <AndroidDexTool>d8</AndroidDexTool>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <DebugSymbols>true</DebugSymbols>
@@ -39,6 +42,15 @@
         <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
         <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
         <AndroidTlsProvider>btls</AndroidTlsProvider>
+        <BundleAssemblies>true</BundleAssemblies>
+        <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+        <AndroidUseAapt2>true</AndroidUseAapt2>
+        <AndroidDexTool>d8</AndroidDexTool>
+        <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
+        <AotAssemblies>true</AotAssemblies>
+        <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
+        <EnableLLVM>true</EnableLLVM>
+        <AndroidLinkTool>r8</AndroidLinkTool>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System" />
@@ -54,12 +66,12 @@
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
         <PackageReference Include="Xam.Plugin.Media" Version="4.0.1.5" />
-        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
         <PackageReference Include="Microsoft.Azure.CognitiveServices.Language.SpellCheck" Version="4.0.0" />
         <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="5.0.0" />
-        <PackageReference Include="Xamarin.Essentials" Version="1.1.0" />
-        <PackageReference Include="Xamarin.Forms" Version="4.1.0.496342-pre2" />
-        <PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="3.0.0-pre1" />
+        <PackageReference Include="Xamarin.Essentials" Version="1.2.0" />
+        <PackageReference Include="Xamarin.Forms" Version="4.2.0.618605-pre2" />
+        <PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="3.0.0-pre4" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="MainActivity.cs" />
@@ -70,7 +82,6 @@
         <None Include="Resources\AboutResources.txt" />
         <None Include="Properties\AndroidManifest.xml" />
         <None Include="Assets\AboutAssets.txt" />
-        <None Include="packages.config" />
     </ItemGroup>
     <ItemGroup>
         <AndroidResource Include="Resources\layout\Tabbar.axml" />

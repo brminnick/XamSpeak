@@ -8,25 +8,22 @@ using AsyncAwaitBestPractices;
 using AsyncAwaitBestPractices.MVVM;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Plugin.Media.Abstractions;
+using Xamarin.Essentials;
 
 namespace XamSpeak
 {
     class TextToSpeechViewModel : BaseViewModel
     {
-        #region Constant Fields
         readonly WeakEventManager _ocrFailedEventManager = new WeakEventManager();
         readonly WeakEventManager _spellCheckFailedEventManager = new WeakEventManager();
         readonly WeakEventManager _internetConnectionUnavailableEventManager = new WeakEventManager();
-        #endregion
 
-        #region Fields
         int _isInternetConnectionInUseCount;
-        string _spokenTextLabelText, _activityIndicatorLabelText;
+        string _spokenTextLabelText = string.Empty;
+        string _activityIndicatorLabelText = string.Empty;
         bool _isActivityIndicatorDisplayed;
-        ICommand _takePictureButtonCommand;
-        #endregion
+        ICommand? _takePictureButtonCommand;
 
-        #region Events
         public event EventHandler OCRFailed
         {
             add => _ocrFailedEventManager.AddEventHandler(value);
@@ -44,11 +41,8 @@ namespace XamSpeak
             add => _internetConnectionUnavailableEventManager.AddEventHandler(value);
             remove => _internetConnectionUnavailableEventManager.RemoveEventHandler(value);
         }
-        #endregion
 
-        #region Properties
-        public ICommand TakePictureButtonCommand => _takePictureButtonCommand ??
-            (_takePictureButtonCommand = new AsyncCommand(ExecuteTakePictureButtonCommand));
+        public ICommand TakePictureButtonCommand => _takePictureButtonCommand ??= new AsyncCommand(ExecuteTakePictureButtonCommand);
 
         public bool IsTakePictureButtonVisible => !IsActivityIndicatorDisplayed;
 
@@ -69,9 +63,7 @@ namespace XamSpeak
             get => _isActivityIndicatorDisplayed;
             set => SetProperty(ref _isActivityIndicatorDisplayed, value, () => OnPropertyChanged(nameof(IsTakePictureButtonVisible)));
         }
-        #endregion
 
-        #region Methods
         Task ExecuteTakePictureButtonCommand()
         {
             SpokenTextLabelText = string.Empty;
@@ -90,12 +82,14 @@ namespace XamSpeak
                 var ocrResults = await GetOcrResults(mediaFile).ConfigureAwait(false);
                 var listOfStringsFromOcrResults = OCRServices.GetTextFromOcrResults(ocrResults);
 
-                var spellCheckedlistOfStringsFromOcrResults = await GetSpellCheckedStringList(listOfStringsFromOcrResults).ConfigureAwait(false);
-
-                SpokenTextLabelText = TextToSpeechServices.SpeakText(spellCheckedlistOfStringsFromOcrResults);
+                await foreach (var spellCheckedText in GetSpellCheckedText(listOfStringsFromOcrResults).ConfigureAwait(false))
+                {
+                    TextToSpeech.SpeakAsync(spellCheckedText).SafeFireAndForget();
+                    SpokenTextLabelText += spellCheckedText;
+                }
             }
-            catch (HttpRequestException e) when (((e?.InnerException as WebException)?.Status.Equals(WebExceptionStatus.ConnectFailure) ?? false)
-                                                || ((e?.InnerException as WebException)?.Status.Equals(WebExceptionStatus.NameResolutionFailure) ?? false))
+            catch (HttpRequestException e) when (e.InnerException is WebException webException
+                                                    && (webException.Status is WebExceptionStatus.ConnectFailure || webException.Status is WebExceptionStatus.NameResolutionFailure))
             {
                 DebugHelpers.PrintException(e);
                 OnInternetConnectionUnavailable();
@@ -120,13 +114,16 @@ namespace XamSpeak
             }
         }
 
-        async Task<List<string>> GetSpellCheckedStringList(List<string> stringList)
+        async IAsyncEnumerable<string> GetSpellCheckedText(IEnumerable<string> stringList)
         {
             ActivateActivityIndicator("Performing Spell Check");
 
             try
             {
-                return await SpellCheckServices.GetSpellCheckedStringList(stringList).ConfigureAwait(false);
+                await foreach (var spellCheckedString in SpellCheckServices.GetSpellCheckedStringList(stringList).ConfigureAwait(false))
+                {
+                    yield return spellCheckedString;
+                }
             }
             finally
             {
@@ -145,7 +142,7 @@ namespace XamSpeak
         {
             IsInternetConnectionActive = --_isInternetConnectionInUseCount != 0;
             IsActivityIndicatorDisplayed = false;
-            ActivityIndicatorLabelText = default;
+            ActivityIndicatorLabelText = string.Empty;
         }
 
         void OnSpellCheckFailed() =>
@@ -156,6 +153,5 @@ namespace XamSpeak
 
         void OnOCRFailed() =>
             _ocrFailedEventManager.HandleEvent(this, EventArgs.Empty, nameof(OCRFailed));
-        #endregion
     }
 }

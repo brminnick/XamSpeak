@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Net;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using AsyncAwaitBestPractices;
 using Microsoft.Azure.CognitiveServices.Language.SpellCheck;
 using Microsoft.Azure.CognitiveServices.Language.SpellCheck.Models;
@@ -11,7 +11,6 @@ namespace XamSpeak
 {
     static class SpellCheckServices
     {
-        #region Constant Fields
         const double _minimumConfidenceScore = 0.80;
 
         static readonly WeakEventManager _invalidBingSpellCheckAPIKeyEventManager = new WeakEventManager();
@@ -19,9 +18,7 @@ namespace XamSpeak
 
         static readonly Lazy<SpellCheckClient> _spellCheckApiClient =
             new Lazy<SpellCheckClient>(() => new SpellCheckClient(new ApiKeyServiceClientCredentials(CognitiveServicesConstants.BingSpellCheckAPIKey)));
-        #endregion
 
-        #region Events
         public static event EventHandler InvalidBingSpellCheckAPIKey
         {
             add => _invalidBingSpellCheckAPIKeyEventManager.AddEventHandler(value);
@@ -33,52 +30,44 @@ namespace XamSpeak
             add => _error429_TooManySpellCheckAPIRequests.AddEventHandler(value);
             remove => _error429_TooManySpellCheckAPIRequests.RemoveEventHandler(value);
         }
-        #endregion
 
-        #region Properties
         static SpellCheckClient SpellCheckApiClient => _spellCheckApiClient.Value;
-        #endregion
 
-        #region Methods
-        public static async Task<List<string>> GetSpellCheckedStringList(List<string> stringList)
+        public static async IAsyncEnumerable<string> GetSpellCheckedStringList(IEnumerable<string> stringList)
         {
-            int listIndex = 0;
-            var correctedLineItemList = new List<string>();
-
+            int index = 0;
             foreach (string lineItem in stringList)
             {
-                correctedLineItemList.Add(lineItem);
+                var correctLineItem = lineItem;
 
                 var misspelledWordList = await SpellCheckString(lineItem).ConfigureAwait(false);
 
-                foreach (var misspelledWord in misspelledWordList)
+                foreach (var word in misspelledWordList)
                 {
-                    var firstSuggestion = misspelledWord.Suggestions.FirstOrDefault();
+                    var firstSuggestion = word.Suggestions.FirstOrDefault();
 
                     if (firstSuggestion?.Score >= _minimumConfidenceScore)
                     {
-                        var correctedLineItem = correctedLineItemList[listIndex].Replace(misspelledWord.Token, firstSuggestion?.Suggestion);
-
-                        correctedLineItemList[listIndex] = correctedLineItem;
+                        correctLineItem = correctLineItem.Replace(word.Token, firstSuggestion?.Suggestion);
                     }
                 }
 
-                listIndex++;
-            }
+                index++;
 
-            return correctedLineItemList;
+                yield return correctLineItem;
+            }
         }
 
 
-        static async Task<List<SpellingFlaggedToken>> SpellCheckString(string text)
+        static async Task<IEnumerable<SpellingFlaggedToken>> SpellCheckString(string text)
         {
             try
             {
                 var spellCheckModel = await SpellCheckApiClient.SpellCheckerAsync(text).ConfigureAwait(false);
 
-                return new List<SpellingFlaggedToken>(spellCheckModel.FlaggedTokens);
+                return spellCheckModel.FlaggedTokens;
             }
-            catch (ErrorResponseException e) when (e.Response.StatusCode.Equals(HttpStatusCode.Unauthorized))
+            catch (ErrorResponseException e) when (e.Response.StatusCode is HttpStatusCode.Unauthorized)
             {
                 DebugHelpers.PrintException(e);
                 OnInvalidBingSpellCheckAPIKey();
@@ -106,6 +95,5 @@ namespace XamSpeak
 
         static void OnError429_TooManySpellCheckAPIRequests() =>
             _error429_TooManySpellCheckAPIRequests.HandleEvent(null, EventArgs.Empty, nameof(Error429_TooManySpellCheckAPIRequests));
-        #endregion
     }
 }

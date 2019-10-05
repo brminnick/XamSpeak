@@ -14,12 +14,9 @@ namespace XamSpeak
 {
     public static class MediaServices
     {
-        #region Constant Fields
         readonly static WeakEventManager _noCameraDetectedEventManager = new WeakEventManager();
         readonly static WeakEventManager _permissionsDeniedEventManager = new WeakEventManager();
-        #endregion
 
-        #region Events 
         public static event EventHandler NoCameraDetected
         {
             add => _noCameraDetectedEventManager.AddEventHandler(value);
@@ -31,9 +28,7 @@ namespace XamSpeak
             add => _permissionsDeniedEventManager.AddEventHandler(value);
             remove => _permissionsDeniedEventManager.RemoveEventHandler(value);
         }
-        #endregion
 
-        #region Methods
         public static Stream GetPhotoStream(MediaFile mediaFile, bool disposeMediaFile)
         {
             var stream = mediaFile.GetStream();
@@ -44,7 +39,7 @@ namespace XamSpeak
             return stream;
         }
 
-        public static async Task<MediaFile> GetMediaFileFromCamera(string photoName)
+        public static async Task<MediaFile?> GetMediaFileFromCamera(string photoName)
         {
             await CrossMedia.Current.Initialize().ConfigureAwait(false);
 
@@ -93,6 +88,5 @@ namespace XamSpeak
 
         static void OnNoCameraDetected() => _noCameraDetectedEventManager.HandleEvent(null, EventArgs.Empty, nameof(NoCameraDetected));
         static void OnPermissionsDenied() => _permissionsDeniedEventManager.HandleEvent(null, EventArgs.Empty, nameof(PermissionsDenied));
-        #endregion
     }
 }

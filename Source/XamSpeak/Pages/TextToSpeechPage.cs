@@ -51,12 +51,11 @@ namespace XamSpeak
             Title = "XamSpeak";
         }
 
-        #region Methods
         async void HandlePermissionsDenied(object sender, EventArgs e)
         {
             var isAlertAccepted = await DisplayAlertOnMainThread("Open Settings?", "Storage and Camera Permission Need To Be Enabled", "Ok", "Cancel");
             if (isAlertAccepted)
-                Device.BeginInvokeOnMainThread(() => CrossPermissions.Current.OpenAppSettings());
+                await Device.InvokeOnMainThreadAsync(CrossPermissions.Current.OpenAppSettings);
         }
 
         async void HandleInternetConnectionUnavailable(object sender, EventArgs e) => await DisplayAlertOnMainThread("Error", "Internet Connection Unavailable");
@@ -69,6 +68,5 @@ namespace XamSpeak
 
         Task DisplayAlertOnMainThread(string title, string message) => Device.InvokeOnMainThreadAsync(() => DisplayAlert(title, message, "Ok"));
         Task<bool> DisplayAlertOnMainThread(string title, string message, string accept, string cancel) => Device.InvokeOnMainThreadAsync(() => DisplayAlert(title, message, accept, cancel));
-        #endregion
     }
 }

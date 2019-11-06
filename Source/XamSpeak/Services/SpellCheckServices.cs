@@ -35,7 +35,6 @@ namespace XamSpeak
 
         public static async IAsyncEnumerable<string> GetSpellCheckedStringList(IEnumerable<string> stringList)
         {
-            int index = 0;
             foreach (string lineItem in stringList)
             {
                 var correctLineItem = lineItem;
@@ -48,11 +47,9 @@ namespace XamSpeak
 
                     if (firstSuggestion?.Score >= _minimumConfidenceScore)
                     {
-                        correctLineItem = correctLineItem.Replace(word.Token, firstSuggestion?.Suggestion);
+                        correctLineItem = correctLineItem.Replace(word.Token, firstSuggestion.Suggestion);
                     }
                 }
-
-                index++;
 
                 yield return correctLineItem;
             }

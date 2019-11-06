@@ -29,16 +29,6 @@ namespace XamSpeak
             remove => _permissionsDeniedEventManager.RemoveEventHandler(value);
         }
 
-        public static Stream GetPhotoStream(MediaFile mediaFile, bool disposeMediaFile)
-        {
-            var stream = mediaFile.GetStream();
-
-            if (disposeMediaFile)
-                mediaFile.Dispose();
-
-            return stream;
-        }
-
         public static async Task<MediaFile?> GetMediaFileFromCamera(string photoName)
         {
             await CrossMedia.Current.Initialize().ConfigureAwait(false);
@@ -56,17 +46,19 @@ namespace XamSpeak
                 return null;
             }
 
-            return await Device.InvokeOnMainThreadAsync(() =>
-            {
-                return CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
-                {
-                    PhotoSize = PhotoSize.Small,
-                    Directory = "XamSpeak",
-                    Name = photoName,
-                    DefaultCamera = CameraDevice.Rear,
-                });
-            }).ConfigureAwait(false);
+            return await TakePhotoOnMainThread(photoName).ConfigureAwait(false);
         }
+
+        static Task<MediaFile?> TakePhotoOnMainThread(string photoName) => Device.InvokeOnMainThreadAsync(() =>
+         {
+             return CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
+             {
+                 PhotoSize = PhotoSize.Small,
+                 Directory = "XamSpeak",
+                 Name = photoName,
+                 DefaultCamera = CameraDevice.Rear,
+             });
+         });
 
         static async Task<bool> ArePermissionsGranted()
         {
@@ -80,10 +72,8 @@ namespace XamSpeak
                 storageStatus = results[Permission.Storage];
             }
 
-            if (cameraStatus is PermissionStatus.Granted && storageStatus is PermissionStatus.Granted)
-                return true;
-
-            return false;
+            return cameraStatus is PermissionStatus.Granted
+                     && storageStatus is PermissionStatus.Granted;
         }
 
         static void OnNoCameraDetected() => _noCameraDetectedEventManager.HandleEvent(null, EventArgs.Empty, nameof(NoCameraDetected));

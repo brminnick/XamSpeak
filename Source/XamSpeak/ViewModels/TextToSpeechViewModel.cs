@@ -108,6 +108,11 @@ namespace XamSpeak
             {
                 return await OCRServices.GetOcrResultsFromMediaFile(mediaFile).ConfigureAwait(false);
             }
+            catch
+            {
+                OnOCRFailed();
+                throw;
+            }
             finally
             {
                 DeactivateActivityIndicator();

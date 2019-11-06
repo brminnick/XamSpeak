@@ -30,7 +30,7 @@ namespace XamSpeak
         {
             try
             {
-                return await ComputerVisionApiClient.RecognizePrintedTextInStreamAsync(true, MediaServices.GetPhotoStream(mediaFile, false)).ConfigureAwait(false);
+                return await ComputerVisionApiClient.RecognizePrintedTextInStreamAsync(true, mediaFile.GetStream()).ConfigureAwait(false);
             }
             catch (ComputerVisionErrorException e) when (e.Response.StatusCode is HttpStatusCode.Unauthorized)
             {

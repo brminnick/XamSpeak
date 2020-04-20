@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Plugin.Permissions;
-
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace XamSpeak
@@ -27,9 +26,10 @@ namespace XamSpeak
             var stackLayout = new StackLayout
             {
                 Margin = new Thickness(20, 0),
-                VerticalOptions = LayoutOptions.Center,
-                HorizontalOptions = LayoutOptions.Center,
-                Children = {
+                VerticalOptions = LayoutOptions.CenterAndExpand,
+                HorizontalOptions = LayoutOptions.CenterAndExpand,
+                Children =
+                {
                     spokenTextLabel,
                     activityIndicatorLabel,
                     activityIndicator,
@@ -39,8 +39,8 @@ namespace XamSpeak
 
             ViewModel.OCRFailed += HandleOCRFailed;
             ViewModel.SpellCheckFailed += HandleSpellCheckFailed;
-            MediaServices.NoCameraDetected += HandleNoCameraDetected;
-            MediaServices.PermissionsDenied += HandlePermissionsDenied;
+            MediaService.NoCameraDetected += HandleNoCameraDetected;
+            MediaService.PermissionsDenied += HandlePermissionsDenied;
             OCRServices.InvalidComputerVisionAPIKey += HandleInvalidComputerVisionAPIKey;
             SpellCheckServices.InvalidBingSpellCheckAPIKey += HandleInvalidBingSpellCheckAPIKey;
             ViewModel.InternetConnectionUnavailable += HandleInternetConnectionUnavailable;
@@ -55,7 +55,7 @@ namespace XamSpeak
         {
             var isAlertAccepted = await DisplayAlertOnMainThread("Open Settings?", "Storage and Camera Permission Need To Be Enabled", "Ok", "Cancel");
             if (isAlertAccepted)
-                await Device.InvokeOnMainThreadAsync(CrossPermissions.Current.OpenAppSettings);
+                await MainThread.InvokeOnMainThreadAsync(AppInfo.ShowSettingsUI);
         }
 
         async void HandleInternetConnectionUnavailable(object sender, EventArgs e) => await DisplayAlertOnMainThread("Error", "Internet Connection Unavailable");
@@ -66,7 +66,7 @@ namespace XamSpeak
         async void HandleError429_TooManySpellCheckAPIRequests(object sender, EventArgs e) => await DisplayAlertOnMainThread("Error", "Bing Spell Check API Limit Reached");
         async void HandleOCRFailed(object sender, EventArgs e) => await DisplayAlertOnMainThread("Error", "Optical Character Recognition Failed");
 
-        Task DisplayAlertOnMainThread(string title, string message) => Device.InvokeOnMainThreadAsync(() => DisplayAlert(title, message, "Ok"));
-        Task<bool> DisplayAlertOnMainThread(string title, string message, string accept, string cancel) => Device.InvokeOnMainThreadAsync(() => DisplayAlert(title, message, accept, cancel));
+        Task DisplayAlertOnMainThread(string title, string message) => MainThread.InvokeOnMainThreadAsync(() => DisplayAlert(title, message, "Ok"));
+        Task<bool> DisplayAlertOnMainThread(string title, string message, string accept, string cancel) => MainThread.InvokeOnMainThreadAsync(() => DisplayAlert(title, message, accept, cancel));
     }
 }

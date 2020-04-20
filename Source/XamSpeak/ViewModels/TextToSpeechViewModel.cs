@@ -73,7 +73,7 @@ namespace XamSpeak
 
         async Task ExecuteNewPictureWorkflow()
         {
-            var mediaFile = await MediaServices.GetMediaFileFromCamera(Guid.NewGuid().ToString()).ConfigureAwait(false);
+            var mediaFile = await MediaService.GetMediaFileFromCamera(Guid.NewGuid().ToString()).ConfigureAwait(false);
             if (mediaFile is null)
                 return;
 

@@ -1,18 +1,13 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using AsyncAwaitBestPractices;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
-
-using Plugin.Permissions;
-using Plugin.Permissions.Abstractions;
-
-using Xamarin.Forms;
+using Xamarin.Essentials;
 
 namespace XamSpeak
 {
-    public static class MediaServices
+    public static class MediaService
     {
         readonly static WeakEventManager _noCameraDetectedEventManager = new WeakEventManager();
         readonly static WeakEventManager _permissionsDeniedEventManager = new WeakEventManager();
@@ -46,35 +41,37 @@ namespace XamSpeak
                 return null;
             }
 
-            return await TakePhotoOnMainThread(photoName).ConfigureAwait(false);
+            return await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                return CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
+                {
+                    PhotoSize = PhotoSize.Small,
+                    Directory = "XamSpeak",
+                    Name = photoName,
+                    DefaultCamera = CameraDevice.Rear,
+                });
+            }).ConfigureAwait(false);
         }
 
-        static Task<MediaFile?> TakePhotoOnMainThread(string photoName) => Device.InvokeOnMainThreadAsync(() =>
-         {
-             return CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions
-             {
-                 PhotoSize = PhotoSize.Small,
-                 Directory = "XamSpeak",
-                 Name = photoName,
-                 DefaultCamera = CameraDevice.Rear,
-             });
-         });
-
-        static async Task<bool> ArePermissionsGranted()
+        static Task<bool> ArePermissionsGranted() => MainThread.InvokeOnMainThreadAsync(async () =>
         {
-            var cameraStatus = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Camera).ConfigureAwait(false);
-            var storageStatus = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Storage).ConfigureAwait(false);
+            var cameraStatusRequestTask = Permissions.RequestAsync<Permissions.Camera>();
+            var storageWriteStatusRequestTask = Permissions.RequestAsync<Permissions.StorageWrite>();
+            var storageReadStatusRequestTask = Permissions.RequestAsync<Permissions.StorageRead>();
+            var photosPermissionRequestTask = Permissions.RequestAsync<Permissions.StorageRead>();
 
-            if (cameraStatus != PermissionStatus.Granted || storageStatus != PermissionStatus.Granted)
-            {
-                var results = await CrossPermissions.Current.RequestPermissionsAsync(new[] { Permission.Camera, Permission.Storage }).ConfigureAwait(false);
-                cameraStatus = results[Permission.Camera];
-                storageStatus = results[Permission.Storage];
-            }
+            await Task.WhenAll(cameraStatusRequestTask, storageWriteStatusRequestTask, storageReadStatusRequestTask, photosPermissionRequestTask).ConfigureAwait(false);
+
+            var cameraStatus = await cameraStatusRequestTask.ConfigureAwait(false);
+            var storageWriteStatus = await storageWriteStatusRequestTask.ConfigureAwait(false);
+            var storageReadStatus = await storageReadStatusRequestTask.ConfigureAwait(false);
+            var photosPermission = await photosPermissionRequestTask.ConfigureAwait(false);
 
             return cameraStatus is PermissionStatus.Granted
-                     && storageStatus is PermissionStatus.Granted;
-        }
+                    && storageWriteStatus is PermissionStatus.Granted
+                    && storageReadStatus is PermissionStatus.Granted
+                    && photosPermission is PermissionStatus.Granted;
+        });
 
         static void OnNoCameraDetected() => _noCameraDetectedEventManager.HandleEvent(null, EventArgs.Empty, nameof(NoCameraDetected));
         static void OnPermissionsDenied() => _permissionsDeniedEventManager.HandleEvent(null, EventArgs.Empty, nameof(PermissionsDenied));

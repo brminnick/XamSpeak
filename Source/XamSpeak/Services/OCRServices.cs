@@ -11,7 +11,7 @@ using Plugin.Media.Abstractions;
 
 namespace XamSpeak
 {
-    public static class OCRServices
+    static class OCRServices
     {
         readonly static WeakEventManager _invalidComputerVisionAPIKeyEventManager = new WeakEventManager();
 

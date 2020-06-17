@@ -55,7 +55,6 @@ namespace XamSpeak
             }
         }
 
-
         static async Task<IEnumerable<SpellingFlaggedToken>> SpellCheckString(string text)
         {
             try

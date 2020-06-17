@@ -11,7 +11,6 @@
         <Folder Include="Helpers\" />
         <Folder Include="Pages\" />
         <Folder Include="ViewModels\" />
-        <Folder Include="Views\" />
         <Folder Include="Services\" />
     </ItemGroup>
     <ItemGroup>
@@ -19,9 +18,9 @@
         <PackageReference Include="Xam.Plugin.Media" Version="5.0.1" />
         <PackageReference Include="Microsoft.Azure.CognitiveServices.Language.SpellCheck" Version="4.0.0" />
         <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="6.0.0-dev.20190919.3" />
-        <PackageReference Include="Xamarin.Essentials" Version="1.5.3" />
-        <PackageReference Include="Xamarin.Forms" Version="4.6.0.616-pre4" />
-        <PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="4.1.1-pre1" />
+        <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
+        <PackageReference Include="Xamarin.Forms" Version="4.7.0.937-pre4" />
+        <PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="4.1.1" />
     </ItemGroup>
     <ItemGroup>
       <Compile Remove="Services\Base\BaseHttpClientService.cs" />

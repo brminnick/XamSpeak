@@ -87,9 +87,9 @@ namespace XamSpeak
         }
 
         static void OnInvalidBingSpellCheckAPIKey() =>
-            _invalidBingSpellCheckAPIKeyEventManager.HandleEvent(null, EventArgs.Empty, nameof(InvalidBingSpellCheckAPIKey));
+            _invalidBingSpellCheckAPIKeyEventManager.RaiseEvent(null, EventArgs.Empty, nameof(InvalidBingSpellCheckAPIKey));
 
         static void OnError429_TooManySpellCheckAPIRequests() =>
-            _error429_TooManySpellCheckAPIRequests.HandleEvent(null, EventArgs.Empty, nameof(Error429_TooManySpellCheckAPIRequests));
+            _error429_TooManySpellCheckAPIRequests.RaiseEvent(null, EventArgs.Empty, nameof(Error429_TooManySpellCheckAPIRequests));
     }
 }

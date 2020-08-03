@@ -126,7 +126,7 @@ namespace XamSpeak
         }
 
         static void OnInvalidComputerVisionAPIKey() =>
-            _invalidComputerVisionAPIKeyEventManager.HandleEvent(null, EventArgs.Empty, nameof(InvalidComputerVisionAPIKey));
+            _invalidComputerVisionAPIKeyEventManager.RaiseEvent(null, EventArgs.Empty, nameof(InvalidComputerVisionAPIKey));
 
         class OcrTextLocationModel
         {

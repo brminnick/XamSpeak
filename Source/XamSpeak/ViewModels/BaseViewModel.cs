@@ -37,6 +37,6 @@ namespace XamSpeak
         }
 
         protected void OnPropertyChanged([CallerMemberName] in string name = "") =>
-            _propertyChangedWeakEventManager.HandleEvent(this, new PropertyChangedEventArgs(name), nameof(INotifyPropertyChanged.PropertyChanged));
+            _propertyChangedWeakEventManager.RaiseEvent(this, new PropertyChangedEventArgs(name), nameof(INotifyPropertyChanged.PropertyChanged));
     }
 }

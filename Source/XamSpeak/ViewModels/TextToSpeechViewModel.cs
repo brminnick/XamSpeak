@@ -150,13 +150,10 @@ namespace XamSpeak
             ActivityIndicatorLabelText = string.Empty;
         }
 
-        void OnSpellCheckFailed() =>
-            _spellCheckFailedEventManager.HandleEvent(this, EventArgs.Empty, nameof(SpellCheckFailed));
+        void OnSpellCheckFailed() => _spellCheckFailedEventManager.RaiseEvent(this, EventArgs.Empty, nameof(SpellCheckFailed));
 
-        void OnInternetConnectionUnavailable() =>
-            _internetConnectionUnavailableEventManager.HandleEvent(this, EventArgs.Empty, nameof(InternetConnectionUnavailable));
+        void OnInternetConnectionUnavailable() => _internetConnectionUnavailableEventManager.RaiseEvent(this, EventArgs.Empty, nameof(InternetConnectionUnavailable));
 
-        void OnOCRFailed() =>
-            _ocrFailedEventManager.HandleEvent(this, EventArgs.Empty, nameof(OCRFailed));
+        void OnOCRFailed() => _ocrFailedEventManager.RaiseEvent(this, EventArgs.Empty, nameof(OCRFailed));
     }
 }
